@@ -147,6 +147,14 @@
 
         <header class="top-header">
             <h1>Hotel Andino S.A.S.</h1>
+            <div class="header-actions">
+                <input type="text" class="search-bar" placeholder="&#128269; Buscar huesped, plato, factura..." autocomplete="off">
+                <div class="user-profile">
+                    <span class="avatar">&#128100;</span>
+                    <span class="name">Admin_User</span>
+                    <span style="font-size:0.6rem; color:var(--text-secondary)">▼</span>
+                </div>
+            </div>
         </header>
 
         <!-- Contenedor para las notificaciones (Toasts) -->
@@ -311,11 +319,17 @@
              VISTA 4: INVENTARIO
              ========================================== -->
         <section id="seccion-inventario" class="view-section">
-            <h2 style="margin-top: 0;">Inventario (Sistema STOP)</h2>
-            <p style="color: var(--text-secondary);">
-                Cuando el stock de un producto llegue a menos de 5 unidades, el sistema
-                lanzara una alerta roja (STOP) para no permitir ventas hasta recargar.
-            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <div>
+                    <h2 style="margin-top: 0;">Inventario (Sistema STOP)</h2>
+                    <p style="color: var(--text-secondary); margin:0;">
+                        El sistema lanzara una alerta roja (STOP) si el stock baja a menos de 5 unidades.
+                    </p>
+                </div>
+                <button class="btn" style="padding: 10px 20px;" onclick="mostrarToast('Funcion: Abrir modal de nuevo producto', 'gold')">
+                    &#10133; Añadir Producto
+                </button>
+            </div>
 
             <table>
                 <thead>

@@ -229,23 +229,59 @@ function renderizarInventario() {
     tbody.innerHTML = '';
 
     baseDatos.inventario.forEach((item, index) => {
-        let badgeEstado = item.stock < 5 ? '<span class="badge danger">STOP - CRÃTICO</span>' : '<span class="badge success">Disponible</span>';
-        tbody.innerHTML += `<tr><td>${item.nombre}</td><td style="font-size: 1.2rem; font-weight: bold;">${item.stock}</td><td>${item.unidad}</td><td>$${item.costo.toLocaleString()}</td><td>${badgeEstado}</td><td><button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="sumarInventario(${index})">+ Agregar</button></td></tr>`;
+        let isCritical = item.stock < 5;
+        let badgeEstado = isCritical ? '<span class="badge danger">⚠️ STOP - CRÍTICO</span>' : '<span class="badge success">✓ Disponible</span>';
+        let stockStyle = isCritical ? 'color: var(--danger); text-shadow: 0 0 10px rgba(248,113,113,0.5);' : 'color: var(--gold);';
+        
+        tbody.innerHTML += `
+            <tr>
+                <td style="font-weight: 500;">${item.nombre}</td>
+                <td style="font-size: 1.4rem; font-weight: 800; ${stockStyle}">${item.stock}</td>
+                <td style="color: var(--text-secondary);">${item.unidad}</td>
+                <td style="font-family: monospace; font-size: 1.1rem;">$${item.costo.toLocaleString()}</td>
+                <td>${badgeEstado}</td>
+                <td>
+                    <button class="btn-sm" onclick="abrirModalStock(${index}, '${item.nombre}')">
+                        <span style="color:var(--success); font-weight:bold;">+</span> Agregar
+                    </button>
+                </td>
+            </tr>`;
     });
 }
 
-function sumarInventario(index) {
-    let cantidadStr = prompt("Â¿CuÃ¡ntas unidades deseas agregar al inventario?");
-    if (cantidadStr === null || cantidadStr.trim() === "") return;
+function abrirModalStock(index, nombre) {
+    // Crear un modal estilo SweetAlert local
+    const modalHTML = `
+        <div id="custom-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px);">
+            <div style="background:var(--bg-card); padding:30px; border-radius:var(--radius); border:1px solid rgba(212,168,83,0.3); width:350px; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.5); transform: scale(0.9); animation: modalPop 0.3s forwards;">
+                <h3 style="margin-top:0; color:var(--text-primary); font-size:1.2rem;">Actualizar Stock</h3>
+                <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:20px;">¿Cuántas unidades deseas agregar de <strong style="color:var(--gold)">${nombre}</strong>?</p>
+                <input type="number" id="input-modal-stock" class="search-bar" style="width:100%; margin-bottom:20px; text-align:center; font-size:1.5rem; border-radius:8px;" placeholder="Ej: 10" autofocus>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-sm" style="flex:1; justify-content:center; padding:12px;" onclick="document.getElementById('custom-modal').remove()">Cancelar</button>
+                    <button class="btn" style="flex:1; padding:12px;" onclick="confirmarStock(${index})">Guardar</button>
+                </div>
+            </div>
+        </div>
+        <style>@keyframes modalPop { to { transform: scale(1); } }</style>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    setTimeout(() => document.getElementById('input-modal-stock').focus(), 100);
+}
+
+function confirmarStock(index) {
+    let cantidadStr = document.getElementById('input-modal-stock').value;
+    if (cantidadStr.trim() === "") return;
     
     let cantidad = parseInt(cantidadStr);
     if (isNaN(cantidad) || cantidad <= 0) {
-        mostrarToast('Por favor, ingresa un nÃºmero vÃ¡lido mayor a 0', 'error');
+        mostrarToast('Por favor, ingresa un número válido mayor a 0', 'error');
         return;
     }
 
     baseDatos.inventario[index].stock += cantidad;
     guardarDatos();
+    document.getElementById('custom-modal').remove();
     mostrarToast('Inventario actualizado');
     actualizarVistas();
 }

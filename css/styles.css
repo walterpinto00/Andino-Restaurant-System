@@ -368,6 +368,13 @@ body {
   background: linear-gradient(90deg, rgba(212,168,83,0.15) 0%, transparent 100%);
   color: var(--gold);
   border-left: 3px solid var(--gold);
+  text-shadow: 0 0 10px rgba(212,168,83,0.3);
+}
+
+.nav-item i {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
 }
 
 /* 5. Contenedor de las vistas principales */
@@ -378,11 +385,10 @@ body {
   overflow-y: auto; /* Permite scroll solo en esta zona */
 }
 
-/* Cabecera superior */
 .top-header {
-  padding: 20px 40px;
-  background: rgba(17, 17, 26, 0.8);
-  backdrop-filter: blur(10px); /* Efecto vidrio (Glassmorphism) */
+  padding: 15px 40px;
+  background: rgba(17, 17, 26, 0.6);
+  backdrop-filter: blur(15px); /* Efecto vidrio (Glassmorphism) */
   border-bottom: 1px solid rgba(255,255,255,0.05);
   position: sticky;
   top: 0;
@@ -394,9 +400,41 @@ body {
 
 .top-header h1 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.search-bar {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  width: 250px;
+  transition: all 0.3s;
+}
+.search-bar:focus { width: 300px; border-color: var(--gold); }
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(212,168,83,0.1);
+  padding: 6px 12px;
+  border-radius: 30px;
+  border: 1px solid rgba(212,168,83,0.3);
+  cursor: pointer;
+}
+.user-profile .avatar { font-size: 1.2rem; }
+.user-profile .name { font-size: 0.85rem; font-weight: 600; color: var(--gold); }
 
 /* 6. Vistas (Páginas) */
 .view-section {
@@ -443,23 +481,38 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-  background-color: var(--bg-card);
+  background: rgba(24, 24, 36, 0.6);
+  backdrop-filter: blur(10px);
   border-radius: var(--radius);
   overflow: hidden; /* Para mantener los bordes redondeados */
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.03);
 }
 
 th, td {
-  padding: 15px 20px;
+  padding: 16px 20px;
   text-align: left;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+tbody tr {
+  transition: all 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: rgba(255,255,255,0.03);
+  transform: scale(1.002);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 1;
+  position: relative;
 }
 
 th {
-  background-color: rgba(0,0,0,0.2);
+  background-color: rgba(0,0,0,0.4);
   color: var(--text-secondary);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
@@ -514,15 +567,34 @@ option {
 
 /* 10. Alertas y Badges */
 .badge {
-  padding: 5px 10px;
+  padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.badge.danger { background-color: rgba(248,113,113,0.2); color: var(--danger); border: 1px solid rgba(248,113,113,0.5); }
-.badge.success { background-color: rgba(74,222,128,0.2); color: var(--success); border: 1px solid rgba(74,222,128,0.5); }
-.badge.gold { background-color: rgba(212,168,83,0.2); color: var(--gold); border: 1px solid rgba(212,168,83,0.5); }
+.badge.danger { background-color: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); text-shadow: 0 0 8px rgba(248,113,113,0.4); }
+.badge.success { background-color: rgba(74,222,128,0.15); color: var(--success); border: 1px solid rgba(74,222,128,0.3); text-shadow: 0 0 8px rgba(74,222,128,0.4); }
+.badge.gold { background-color: rgba(212,168,83,0.15); color: var(--gold); border: 1px solid rgba(212,168,83,0.3); text-shadow: 0 0 8px rgba(212,168,83,0.4); }
+
+.btn-sm {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-sm:hover { background: var(--gold); color: var(--bg-primary); border-color: var(--gold); }
 
 /* Alertas estilo notificación */
 #toast-container {
