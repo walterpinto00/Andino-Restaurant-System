@@ -131,16 +131,15 @@ function validarLogin() {
         return;
     }
 
-    // Paso 2: Verificar CAPTCHA
-    if (isNaN(captchaInput) || captchaInput !== captchaRespuesta) {
+    // Paso 2: Verificar Google reCAPTCHA
+    const recaptchaRespuesta = grecaptcha.getResponse();
+    if (!recaptchaRespuesta) {
         captchaError.style.display = 'block';
-        document.getElementById('captcha-respuesta').value = '';
-        document.getElementById('captcha-respuesta').focus();
-        generarCaptcha(); // Generar nuevo CAPTCHA
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
         return;
     }
+    captchaError.style.display = 'none';
 
     // Paso 3: Verificar credenciales
     if (usuario === USUARIO_VALIDO && password === PASSWORD_VALIDA) {
@@ -166,7 +165,7 @@ function validarLogin() {
         setTimeout(() => card.classList.remove('shake'), 400);
         document.getElementById('login-password').value = '';
         document.getElementById('login-password').focus();
-        generarCaptcha(); // Nuevo CAPTCHA en cada intento fallido
+        grecaptcha.reset(); // Resetear el reCAPTCHA de Google en cada intento fallido
     }
 }
 
