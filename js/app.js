@@ -182,6 +182,12 @@ function registrarHuesped() {
     if (documentoExiste(doc)) {
         mostrarToast('⚠️ Ya existe un huésped con ese documento registrado', 'error'); return;
     }
+    
+    // V6: Habitación ocupada
+    let habitacionOcupada = baseDatos.huespedes.some(h => h.habitacion === hab.trim());
+    if (habitacionOcupada) {
+        mostrarToast(`⚠️ La habitación ${hab} ya está ocupada por otro huésped`, 'error'); return;
+    }
 
     nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1); // Capitalizar
     baseDatos.huespedes.push({
