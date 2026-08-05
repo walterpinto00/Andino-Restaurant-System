@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Andino S.A.S. - Sistema de GestiÃ³n</title>
+    <title>Hotel Andino S.A.S. - Sistema de Gestión</title>
     <!-- Vinculamos la hoja de estilos externa -->
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -71,18 +73,18 @@
 
                 <div id="login-error" style="display:none; background: rgba(248,113,113,0.15); border: 1px solid var(--danger); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; color: var(--danger); font-size: 0.9rem; text-align:center;"></div>
 
-                <!-- CAPTCHA MATEMÁTICO -->
+                <!-- GOOGLE reCAPTCHA v2 -->
                 <div class="captcha-box">
                     <div class="captcha-header">
                         <span>🛡️ Verificación de Seguridad</span>
-                        <button type="button" onclick="generarCaptcha()" class="captcha-refresh" title="Nueva pregunta">🔄</button>
                     </div>
-                    <div class="captcha-question">
-                        <div class="captcha-math" id="captcha-display">...</div>
-                        <span class="captcha-equals">=</span>
-                        <input type="number" id="captcha-respuesta" placeholder="?" class="captcha-input" onkeypress="if(event.key==='Enter')validarLogin()">
+                    <!-- Clave de PRUEBA oficial de Google - funciona en localhost -->
+                    <div class="g-recaptcha"
+                         data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                         data-theme="dark"
+                         data-size="normal">
                     </div>
-                    <div id="captcha-error" style="display:none; color:var(--danger); font-size:0.8rem; margin-top:6px; text-align:center;">❌ Respuesta incorrecta. Intenta de nuevo.</div>
+                    <div id="captcha-error" style="display:none; color:var(--danger); font-size:0.8rem; margin-top:8px;">❌ Por favor completa el CAPTCHA para continuar.</div>
                 </div>
 
                 <button class="btn" id="btn-login" style="width:100%; padding: 14px; font-size: 1rem; margin-top:8px;" onclick="validarLogin()">Ingresar al Sistema</button>

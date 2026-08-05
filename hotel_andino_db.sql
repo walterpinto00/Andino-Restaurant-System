@@ -1,7 +1,4 @@
--- ==========================================================
--- HOTEL ANDINO S.A.S. - BASE DE DATOS MySQL
--- Script de Creación e Inserción de Datos Básicos
--- ==========================================================
+
 
 CREATE DATABASE IF NOT EXISTS hotel_andino_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE hotel_andino_db;
