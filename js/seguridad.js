@@ -40,6 +40,18 @@ function reiniciarTimerSesion() {
 document.addEventListener('click', reiniciarTimerSesion);
 document.addEventListener('keypress', reiniciarTimerSesion);
 
+/**
+ * Cierra la sesión manualmente a petición del usuario.
+ */
+function cerrarSesion() {
+    if (confirm("¿Estás seguro de que deseas salir del sistema?")) {
+        sessionStorage.removeItem('hotelAndino_logged');
+        sessionStorage.removeItem('hotelAndino_userRol');
+        sessionStorage.removeItem('hotelAndino_userName');
+        location.reload();
+    }
+}
+
 // ── FUNCIONES DEL LOGIN ─────────────────────────────────────────────────────
 
 /**
