@@ -17,7 +17,7 @@ const MAX_INTENTOS = 3;         // Máximo de intentos antes del bloqueo
 let bloqueadoHasta = null;      // Fecha/hora hasta la que el sistema está bloqueado
 
 let timerSesion = null;                     // Timer de inactividad
-const TIEMPO_SESION = 20 * 60 * 1000;      // 20 minutos en milisegundos
+const TIEMPO_SESION = 5 * 60 * 1000;       // 5 minutos en milisegundos
 
 // ── FUNCIONES DE SESIÓN ─────────────────────────────────────────────────────
 
