@@ -161,11 +161,13 @@ function registrarHuesped() {
     let doc = sanitizar(document.getElementById('huesped-doc').value);
     let hab = sanitizar(document.getElementById('huesped-hab').value);
     let correo = sanitizar(document.getElementById('huesped-correo').value);
+    let ingreso = document.getElementById('huesped-ingreso').value;
+    let salida = document.getElementById('huesped-salida').value;
     let plan = parseInt(document.getElementById('huesped-plan').value);
 
     // V1: Campos vacíos
-    if (campoVacio(nombre) || campoVacio(doc) || campoVacio(hab) || campoVacio(correo)) {
-        mostrarToast('⚠️ Todos los campos son obligatorios', 'error'); return;
+    if (campoVacio(nombre) || campoVacio(doc) || campoVacio(hab) || campoVacio(correo) || !ingreso || !salida) {
+        mostrarToast('⚠️ Todos los campos (incluyendo fechas) son obligatorios', 'error'); return;
     }
     // V1.5: Validar formato de correo básico
     if (!correo.includes('@') || !correo.includes('.')) {
@@ -194,9 +196,16 @@ function registrarHuesped() {
         mostrarToast(`⚠️ La habitación ${hab} ya está ocupada por otro huésped`, 'error'); return;
     }
 
+    // V6: Validar orden de fechas
+    let dIngreso = new Date(ingreso);
+    let dSalida = new Date(salida);
+    if (dSalida <= dIngreso) {
+        mostrarToast('⚠️ La fecha de salida debe ser POSTERIOR a la de ingreso', 'error'); return;
+    }
+
     nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1); // Capitalizar
     baseDatos.huespedes.push({
-        id: Date.now(), nombre, documento: doc, correo: correo, habitacion: hab, plan, comidasHoy: 0
+        id: Date.now(), nombre, documento: doc, correo, ingreso, salida, habitacion: hab, plan, comidasHoy: 0
     });
     guardarDatos();
     mostrarToast('✅ Huésped registrado exitosamente');
@@ -204,6 +213,8 @@ function registrarHuesped() {
     document.getElementById('huesped-doc').value = '';
     document.getElementById('huesped-hab').value = '';
     document.getElementById('huesped-correo').value = '';
+    document.getElementById('huesped-ingreso').value = '';
+    document.getElementById('huesped-salida').value = '';
     actualizarVistas();
 }
 
@@ -221,7 +232,10 @@ function renderizarHuespedes() {
         fila.innerHTML = `
             <td>${h.nombre}</td>
             <td>${h.documento}</td>
-            <td>${h.correo || 'N/A'}</td>
+            <td style="font-size:0.85rem;">
+                <span style="color:var(--success);">In:</span> ${h.ingreso || '--'}<br>
+                <span style="color:var(--danger);">Out:</span> ${h.salida || '--'}
+            </td>
             <td>Hab. ${h.habitacion}</td>
             <td><span class="badge" style="background:var(${colorBadge}); color:#11111a;">${textoPlan}</span></td>
             <td>${h.comidasHoy} / ${h.plan}</td>
