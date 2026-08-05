@@ -54,26 +54,63 @@ window.onload = function() {
 };
 
 /**
- * Validar el PIN de seguridad (Simulación Básica)
+ * Muestra/Oculta la contraseña en el login
+ */
+function togglePassword() {
+    const input = document.getElementById('login-password');
+    const btn = document.getElementById('btn-toggle-pw');
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '🙈';
+    } else {
+        input.type = 'password';
+        btn.textContent = '👁️';
+    }
+}
+
+/**
+ * Valida el usuario y contraseña del login
  */
 function validarLogin() {
-    const pin = document.getElementById('login-pin').value;
-    
-    // PIN de seguridad fijo para el prototipo
-    if (pin === '1234') {
+    const usuario = document.getElementById('login-usuario').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errorDiv = document.getElementById('login-error');
+    const card = document.querySelector('.login-card');
+
+    // Credenciales del sistema
+    const USUARIO_VALIDO = 'admin';
+    const PASSWORD_VALIDA = 'andino2024';
+
+    if (!usuario || !password) {
+        errorDiv.textContent = '⚠️ Por favor completa todos los campos';
+        errorDiv.style.display = 'block';
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 400);
+        return;
+    }
+
+    if (usuario === USUARIO_VALIDO && password === PASSWORD_VALIDA) {
+        // Login exitoso
         sessionStorage.setItem('hotelAndino_logged', 'true');
-        
-        // Efecto de transición
-        document.getElementById('login-overlay').style.opacity = '0';
+        errorDiv.style.display = 'none';
+
+        const overlay = document.getElementById('login-overlay');
+        overlay.style.opacity = '0';
         setTimeout(() => {
-            document.getElementById('login-overlay').style.display = 'none';
+            overlay.style.display = 'none';
             document.getElementById('app-sidebar').style.display = 'flex';
             document.getElementById('app-main').style.display = 'flex';
             actualizarVistas();
-            mostrarToast('Bienvenido al Sistema');
-        }, 300);
+            mostrarToast('👋 Bienvenido, ' + usuario + '!');
+        }, 400);
     } else {
-        mostrarToast('PIN incorrecto. Acceso denegado.', 'error');
+        // Credenciales incorrectas
+        errorDiv.textContent = '❌ Usuario o contraseña incorrectos. Intenta de nuevo.';
+        errorDiv.style.display = 'block';
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 400);
+        document.getElementById('login-password').value = '';
+        document.getElementById('login-password').focus();
     }
 }
 
