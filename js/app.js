@@ -24,9 +24,9 @@ let baseDatos = {
     comandas: [],
     precioEstandar: 25000,
     personal: [
-        { id: 1, nombre: "Mesero Carlos", rol: "Mesero", estado: "Activo" },
-        { id: 2, nombre: "Admin_User", rol: "Administrador", estado: "Activo" },
-        { id: 3, nombre: "Recepción María", rol: "Recepcionista", estado: "Activo" }
+        { id: 1, nombre: "Admin_User", usuario: "admin", clave: "123456", rol: "Administrador", estado: "Activo" },
+        { id: 2, nombre: "Recepción María", usuario: "recepcion", clave: "123456", rol: "Recepcionista", estado: "Activo" },
+        { id: 3, nombre: "Mesero Carlos", usuario: "mesero", clave: "123456", rol: "Mesero", estado: "Activo" }
     ]
 };
 
@@ -41,9 +41,9 @@ function cargarDatos() {
         // Migración para usuarios antiguos
         if (!baseDatos.personal) {
             baseDatos.personal = [
-                { id: 1, nombre: "Mesero Carlos", rol: "Mesero", estado: "Activo" },
-                { id: 2, nombre: "Admin_User", rol: "Administrador", estado: "Activo" },
-                { id: 3, nombre: "Recepción María", rol: "Recepcionista", estado: "Activo" }
+                { id: 1, nombre: "Admin_User", usuario: "admin", clave: "123456", rol: "Administrador", estado: "Activo" },
+                { id: 2, nombre: "Recepción María", usuario: "recepcion", clave: "123456", rol: "Recepcionista", estado: "Activo" },
+                { id: 3, nombre: "Mesero Carlos", usuario: "mesero", clave: "123456", rol: "Mesero", estado: "Activo" }
             ];
             guardarDatos();
         }
@@ -95,8 +95,35 @@ function actualizarVistas() {
     renderizarHuespedes();
     renderizarInventario();
     renderizarCaja();
-    renderizarPersonal(); // NUEVO
-    renderizarComandas(); // Se llama después para asegurar que toma los meseros
+    renderizarPersonal();
+    renderizarComandas();
+
+    // NUEVO: Control de Accesos por Roles (RBAC)
+    const rolActual = sessionStorage.getItem('hotelAndino_userRol');
+    
+    // Reset display (mostrar todo por defecto para admin)
+    document.getElementById('nav-huespedes').style.display = 'flex';
+    document.getElementById('nav-comandas').style.display = 'flex';
+    document.getElementById('nav-inventario').style.display = 'flex';
+    document.getElementById('nav-caja').style.display = 'flex';
+    document.getElementById('nav-personal').style.display = 'flex';
+
+    if (rolActual === 'Mesero') {
+        document.getElementById('nav-huespedes').style.display = 'none';
+        document.getElementById('nav-inventario').style.display = 'none';
+        document.getElementById('nav-caja').style.display = 'none';
+        document.getElementById('nav-personal').style.display = 'none';
+        
+        // Si entra como mesero, forzar que vea comandas de una vez si estaba en el dashboard
+        if(document.getElementById('seccion-dashboard').classList.contains('active')){
+            cambiarSeccion('comandas');
+        }
+    } 
+    else if (rolActual === 'Recepcionista') {
+        document.getElementById('nav-inventario').style.display = 'none';
+        document.getElementById('nav-caja').style.display = 'none';
+        document.getElementById('nav-personal').style.display = 'none';
+    }
 }
 
 function actualizarDashboard() {
@@ -373,11 +400,23 @@ function registrarPersonal() {
     }
 
     let nuevoId = baseDatos.personal.length > 0 ? Math.max(...baseDatos.personal.map(p => p.id)) + 1 : 1;
-    baseDatos.personal.push({ id: nuevoId, nombre: nombre, rol: rol, estado: "Activo" });
+    
+    // Generar usuario automático a partir del primer nombre y una clave genérica
+    let usuarioGenerado = nombre.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + nuevoId;
+    let claveGenerica = "123456";
+
+    baseDatos.personal.push({ 
+        id: nuevoId, 
+        nombre: nombre, 
+        usuario: usuarioGenerado, 
+        clave: claveGenerica, 
+        rol: rol, 
+        estado: "Activo" 
+    });
     
     guardarDatos();
     document.getElementById('personal-nombre').value = '';
-    mostrarToast(`Personal registrado: ${nombre} (${rol})`);
+    mostrarToast(`Empleado registrado. Usuario: ${usuarioGenerado} | Clave: 123456`);
     actualizarVistas();
 }
 
@@ -409,7 +448,7 @@ function renderizarPersonal() {
 
         tbody.innerHTML += `
             <tr style="opacity: ${p.estado === 'Activo' ? '1' : '0.5'}">
-                <td style="font-weight:bold;">${p.nombre}</td>
+                <td style="font-weight:bold;">${p.nombre}<br><small style="color:var(--text-secondary); font-weight:normal;">User: ${p.usuario || 'N/A'}</small></td>
                 <td>${badgeRol}</td>
                 <td style="color:${estadoColor}; font-weight:600;">${p.estado}</td>
                 <td>${botonAccion}</td>

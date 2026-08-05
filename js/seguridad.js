@@ -107,10 +107,15 @@ function validarLogin() {
     }
     captchaError.style.display = 'none';
 
-    // ── CAPA 6: Verificar credenciales ──
-    if (usuario === USUARIO_VALIDO && password === PASSWORD_VALIDA) {
+    // ── CAPA 6: Verificar credenciales en Base de Datos ──
+    let usuarioLogueado = baseDatos.personal.find(p => p.usuario === usuario && p.clave === password && p.estado === 'Activo');
+
+    if (usuarioLogueado) {
         intentosFallidos = 0;
         sessionStorage.setItem('hotelAndino_logged', 'true');
+        sessionStorage.setItem('hotelAndino_userRol', usuarioLogueado.rol);
+        sessionStorage.setItem('hotelAndino_userName', usuarioLogueado.nombre);
+        
         errorDiv.style.display = 'none';
         reiniciarTimerSesion();
 
@@ -120,8 +125,12 @@ function validarLogin() {
             overlay.style.display = 'none';
             document.getElementById('app-sidebar').style.display = 'flex';
             document.getElementById('app-main').style.display = 'flex';
+            
+            // Actualizar el nombre en el header
+            document.getElementById('header-user-name').textContent = usuarioLogueado.nombre;
+
             actualizarVistas();
-            mostrarToast('👋 Bienvenido, ' + usuario + '!');
+            mostrarToast(`👋 Bienvenido, ${usuarioLogueado.nombre} (${usuarioLogueado.rol})`);
         }, 400);
 
     } else {
