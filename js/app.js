@@ -31,14 +31,38 @@ let baseDatos = {
     ]
 };
 
+function cifrarDatos(obj) {
+    try {
+        // Encriptación básica Base64 con soporte UTF-8
+        let str = JSON.stringify(obj);
+        return btoa(unescape(encodeURIComponent(str)));
+    } catch(e) {
+        return JSON.stringify(obj);
+    }
+}
+
+function descifrarDatos(str) {
+    try {
+        // Soporte de migración: Si ya estaba en texto plano, devolverlo parseado directamente
+        if (str.startsWith('{') || str.startsWith('[')) return JSON.parse(str);
+        // Desencriptar
+        return JSON.parse(decodeURIComponent(escape(atob(str))));
+    } catch(e) {
+        console.error("Error de seguridad al leer la DB", e);
+        return null;
+    }
+}
+
 function guardarDatos() {
-    localStorage.setItem('hotelAndino_DB', JSON.stringify(baseDatos));
+    localStorage.setItem('hotelAndino_DB', cifrarDatos(baseDatos));
 }
 
 function cargarDatos() {
     let datosGuardados = localStorage.getItem('hotelAndino_DB');
     if (datosGuardados) {
-        baseDatos = JSON.parse(datosGuardados);
+        let datosExtraidos = descifrarDatos(datosGuardados);
+        if (datosExtraidos) baseDatos = datosExtraidos;
+
         // Migraciones para estructura antigua
         if (!baseDatos.reservas) {
             baseDatos.reservas = [];
