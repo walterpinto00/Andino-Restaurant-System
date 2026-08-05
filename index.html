@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Andino S.A.S. - Sistema de Gestión</title>
+    <title>Hotel Andino S.A.S. - Sistema de GestiÃ³n</title>
     <!-- Vinculamos la hoja de estilos externa -->
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -14,7 +14,7 @@
          ========================================== -->
     <div id="login-overlay">
 
-        <!-- Fondo animado con partículas -->
+        <!-- Fondo animado con partÃ­culas -->
         <div class="login-bg">
             <span></span><span></span><span></span>
             <span></span><span></span><span></span>
@@ -23,24 +23,24 @@
         <!-- Panel izquierdo: Branding -->
         <div class="login-branding">
             <div class="login-brand-content">
-                <div class="login-logo">🏨</div>
+                <div class="login-logo">ðŸ¨</div>
                 <h1>Hotel Andino <span>S.A.S.</span></h1>
-                <p>Sistema Integral de Gestión Hotelera</p>
+                <p>Sistema Integral de GestiÃ³n Hotelera</p>
                 <div class="login-features">
                     <div class="login-feature">
-                        <span class="feature-icon">🛏️</span>
-                        <span>Control de Huéspedes</span>
+                        <span class="feature-icon">ðŸ›ï¸</span>
+                        <span>Control de HuÃ©spedes</span>
                     </div>
                     <div class="login-feature">
-                        <span class="feature-icon">🍽️</span>
-                        <span>Gestión de Comandas</span>
+                        <span class="feature-icon">ðŸ½ï¸</span>
+                        <span>GestiÃ³n de Comandas</span>
                     </div>
                     <div class="login-feature">
-                        <span class="feature-icon">📦</span>
+                        <span class="feature-icon">ðŸ“¦</span>
                         <span>Inventario Sistema STOP</span>
                     </div>
                     <div class="login-feature">
-                        <span class="feature-icon">💰</span>
+                        <span class="feature-icon">ðŸ’°</span>
                         <span>Flujo de Caja Diario</span>
                     </div>
                 </div>
@@ -51,21 +51,21 @@
         <div class="login-form-panel">
             <div class="login-card">
                 <div class="login-card-header">
-                    <div class="login-avatar">🔐</div>
-                    <h2>Iniciar Sesión</h2>
+                    <div class="login-avatar">ðŸ”</div>
+                    <h2>Iniciar SesiÃ³n</h2>
                     <p>Ingresa tus credenciales de acceso</p>
                 </div>
 
                 <div class="form-group">
-                    <label for="login-usuario">👤 Usuario</label>
+                    <label for="login-usuario">ðŸ‘¤ Usuario</label>
                     <input type="text" id="login-usuario" placeholder="Ingresa tu usuario" autocomplete="off">
                 </div>
 
                 <div class="form-group">
-                    <label for="login-password">🔒 Contraseña</label>
+                    <label for="login-password">ðŸ”’ ContraseÃ±a</label>
                     <div style="position: relative;">
-                        <input type="password" id="login-password" placeholder="Ingresa tu contraseña" style="padding-right: 50px;">
-                        <button onclick="togglePassword()" id="btn-toggle-pw" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:1.1rem; padding:0;">👁️</button>
+                        <input type="password" id="login-password" onkeypress="if(event.key==='Enter')validarLogin()" placeholder="Ingresa tu contraseÃ±a" style="padding-right: 50px;">
+                        <button onclick="togglePassword()" id="btn-toggle-pw" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:1.1rem; padding:0;">ðŸ‘ï¸</button>
                     </div>
                 </div>
 
@@ -74,37 +74,37 @@
                 <button class="btn" id="btn-login" style="width:100%; padding: 14px; font-size: 1rem; margin-top:8px;" onclick="validarLogin()">Ingresar al Sistema</button>
 
                 <div class="login-hint">
-                    <small>🔑 Credenciales: <strong>admin</strong> / <strong>andino2024</strong></small>
+                    <small>ðŸ”‘ Credenciales: <strong>admin</strong> / <strong>andino2024</strong></small>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ==========================================
-         BARRA LATERAL (Menú de Navegación)
+         BARRA LATERAL (MenÃº de NavegaciÃ³n)
          ========================================== -->
     <aside class="sidebar" id="app-sidebar" style="display: none;">
         <div class="sidebar-logo">
-            <h2>🏨 Andino</h2>
-            <p>Sistema de Gestión S.A.S.</p>
+            <h2>ðŸ¨ Andino</h2>
+            <p>Sistema de GestiÃ³n S.A.S.</p>
         </div>
         
         <nav class="nav-menu">
-            <!-- Cada botón llama a la función cambiarSeccion() de JavaScript -->
+            <!-- Cada botÃ³n llama a la funciÃ³n cambiarSeccion() de JavaScript -->
             <div id="nav-dashboard" class="nav-item active" onclick="cambiarSeccion('dashboard')">
-                📊 Dashboard General
+                ðŸ“Š Dashboard General
             </div>
             <div id="nav-huespedes" class="nav-item" onclick="cambiarSeccion('huespedes')">
-                🛏️ Gestión Huéspedes
+                ðŸ›ï¸ GestiÃ³n HuÃ©spedes
             </div>
             <div id="nav-comandas" class="nav-item" onclick="cambiarSeccion('comandas')">
-                🍽️ Comandas y Pedidos
+                ðŸ½ï¸ Comandas y Pedidos
             </div>
             <div id="nav-inventario" class="nav-item" onclick="cambiarSeccion('inventario')">
-                📦 Inventario (STOP)
+                ðŸ“¦ Inventario (STOP)
             </div>
             <div id="nav-caja" class="nav-item" onclick="cambiarSeccion('caja')">
-                💰 Flujo de Caja
+                ðŸ’° Flujo de Caja
             </div>
         </nav>
     </aside>
@@ -126,7 +126,7 @@
              ========================================== -->
         <section id="seccion-dashboard" class="view-section active">
             <h2 style="margin-top: 0;">Resumen Operativo</h2>
-            <p style="color: var(--text-secondary);">Métricas principales del hotel y restaurante del día de hoy.</p>
+            <p style="color: var(--text-secondary);">MÃ©tricas principales del hotel y restaurante del dÃ­a de hoy.</p>
             
             <div class="card-grid">
                 <div class="card">
@@ -134,7 +134,7 @@
                     <p class="value" id="dash-platos">0</p>
                 </div>
                 <div class="card">
-                    <h3>Ingresos del Día (Externos)</h3>
+                    <h3>Ingresos del DÃ­a (Externos)</h3>
                     <p class="value" style="color: var(--success);" id="dash-ingresos">$0</p>
                 </div>
                 <div class="card">
@@ -145,49 +145,49 @@
         </section>
 
         <!-- ==========================================
-             VISTA 2: HUÉSPEDES
+             VISTA 2: HUÃ‰SPEDES
              ========================================== -->
         <section id="seccion-huespedes" class="view-section">
-            <h2 style="margin-top: 0;">Gestión de Huéspedes</h2>
+            <h2 style="margin-top: 0;">GestiÃ³n de HuÃ©spedes</h2>
             
             <!-- Formulario de Registro -->
             <div class="card" style="margin-bottom: 30px;">
-                <h3>Registrar Nuevo Huésped</h3>
+                <h3>Registrar Nuevo HuÃ©sped</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label>Nombre Completo</label>
-                        <input type="text" id="huesped-nombre" placeholder="Ej. Carlos Martínez">
+                        <input type="text" id="huesped-nombre" placeholder="Ej. Carlos MartÃ­nez">
                     </div>
                     <div class="form-group">
                         <label>Documento de Identidad</label>
-                        <input type="text" id="huesped-doc" placeholder="Número de cédula">
+                        <input type="text" id="huesped-doc" placeholder="NÃºmero de cÃ©dula">
                     </div>
                     <div class="form-group">
-                        <label>Habitación</label>
+                        <label>HabitaciÃ³n</label>
                         <input type="text" id="huesped-hab" placeholder="Ej. 101">
                     </div>
                     <div class="form-group">
-                        <label>Plan de Alimentación</label>
-                        <!-- El 'value' define cuántas comidas gratis tiene -->
+                        <label>Plan de AlimentaciÃ³n</label>
+                        <!-- El 'value' define cuÃ¡ntas comidas gratis tiene -->
                         <select id="huesped-plan">
-                            <option value="3">Pensión Completa (3 comidas)</option>
-                            <option value="2">Media Pensión (2 comidas)</option>
+                            <option value="3">PensiÃ³n Completa (3 comidas)</option>
+                            <option value="2">Media PensiÃ³n (2 comidas)</option>
                             <option value="1">Alojamiento y Desayuno (1 comida)</option>
                             <option value="0">Solo Alojamiento (0 comidas)</option>
                         </select>
                     </div>
                 </div>
-                <button class="btn" onclick="registrarHuesped()">Guardar Huésped</button>
+                <button class="btn" onclick="registrarHuesped()">Guardar HuÃ©sped</button>
             </div>
 
-            <!-- Tabla de Huéspedes -->
-            <h3>Huéspedes Actuales</h3>
+            <!-- Tabla de HuÃ©spedes -->
+            <h3>HuÃ©spedes Actuales</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>Documento</th>
-                        <th>Habitación</th>
+                        <th>HabitaciÃ³n</th>
                         <th>Plan</th>
                         <th>Consumo de Comidas</th>
                     </tr>
@@ -211,14 +211,14 @@
                     <div class="form-group">
                         <label>Tipo de Cliente</label>
                         <select id="comanda-tipo" onchange="toggleTipoCliente()">
-                            <option value="huesped">Huésped (Descuenta de su Plan)</option>
+                            <option value="huesped">HuÃ©sped (Descuenta de su Plan)</option>
                             <option value="externo">Cliente Externo (Se Cobra de Inmediato)</option>
                         </select>
                     </div>
 
-                    <!-- Si es Huésped -->
+                    <!-- Si es HuÃ©sped -->
                     <div class="form-group" id="grupo-huesped">
-                        <label>Seleccionar Huésped</label>
+                        <label>Seleccionar HuÃ©sped</label>
                         <select id="comanda-huesped">
                             <!-- Rellenado por JS -->
                         </select>
@@ -233,9 +233,9 @@
                     <div class="form-group">
                         <label>Tipo de Comida</label>
                         <select id="comanda-comida">
-                            <option value="Desayuno">☀️ Desayuno</option>
-                            <option value="Almuerzo">🌤️ Almuerzo</option>
-                            <option value="Cena">🌙 Cena</option>
+                            <option value="Desayuno">â˜€ï¸ Desayuno</option>
+                            <option value="Almuerzo">ðŸŒ¤ï¸ Almuerzo</option>
+                            <option value="Cena">ðŸŒ™ Cena</option>
                         </select>
                     </div>
 
@@ -259,7 +259,7 @@
             </div>
 
             <!-- Tabla de Comandas -->
-            <h3>Comandas del Día</h3>
+            <h3>Comandas del DÃ­a</h3>
             <table>
                 <thead>
                     <tr>
@@ -268,7 +268,7 @@
                         <th>Mesero</th>
                         <th>Comida</th>
                         <th>Plato</th>
-                        <th>Tipo (Cortesía / Cobro)</th>
+                        <th>Tipo (CortesÃ­a / Cobro)</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-comandas">
@@ -282,7 +282,7 @@
              ========================================== -->
         <section id="seccion-inventario" class="view-section">
             <h2 style="margin-top: 0;">Inventario (Sistema STOP)</h2>
-            <p style="color: var(--text-secondary);">Cuando el stock de un producto llegue a menos de 5, el sistema lanzará una alerta roja (STOP) para no permitir ventas hasta recargar.</p>
+            <p style="color: var(--text-secondary);">Cuando el stock de un producto llegue a menos de 5, el sistema lanzarÃ¡ una alerta roja (STOP) para no permitir ventas hasta recargar.</p>
 
             <table>
                 <thead>
@@ -292,7 +292,7 @@
                         <th>Unidad</th>
                         <th>Costo Aprox.</th>
                         <th>Estado</th>
-                        <th>Acción</th>
+                        <th>AcciÃ³n</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-inventario">
@@ -313,7 +313,7 @@
                     <p class="value" style="color: var(--success);" id="caja-total">$0</p>
                 </div>
                 <div class="card" style="border-left: 4px solid var(--gold);">
-                    <h3>Platos Servidos (Cortesía Huéspedes)</h3>
+                    <h3>Platos Servidos (CortesÃ­a HuÃ©spedes)</h3>
                     <p class="value" id="caja-cortesias">0</p>
                 </div>
             </div>
@@ -323,7 +323,7 @@
                 <thead>
                     <tr>
                         <th>Hora</th>
-                        <th>Descripción</th>
+                        <th>DescripciÃ³n</th>
                         <th>Ingreso</th>
                     </tr>
                 </thead>
@@ -335,7 +335,8 @@
 
     </main>
 
-    <!-- Vinculamos el único archivo de JavaScript que contiene toda la lógica -->
+    <!-- Vinculamos el Ãºnico archivo de JavaScript que contiene toda la lÃ³gica -->
     <script src="js/app.js"></script>
 </body>
 </html>
+
