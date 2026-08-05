@@ -22,6 +22,7 @@ let baseDatos = {
         { nombre: "Huevos", stock: 40, unidad: "Und", costo: 600 }
     ],
     comandas: [],
+    reservas: [],
     precioEstandar: 25000,
     personal: [
         { nombre: "Admin_User", usuario: "admin", clave: "123456", rol: "Administrador", estado: "Activo" },
@@ -38,7 +39,11 @@ function cargarDatos() {
     let datosGuardados = localStorage.getItem('hotelAndino_DB');
     if (datosGuardados) {
         baseDatos = JSON.parse(datosGuardados);
-        // Migración para usuarios antiguos
+        // Migraciones para estructura antigua
+        if (!baseDatos.reservas) {
+            baseDatos.reservas = [];
+            guardarDatos();
+        }
         if (!baseDatos.personal) {
             baseDatos.personal = [
                 { nombre: "Admin_User", usuario: "admin", clave: "123456", rol: "Administrador", estado: "Activo" },
@@ -117,12 +122,14 @@ function actualizarVistas() {
     renderizarCaja();
     renderizarPersonal();
     renderizarComandas();
+    renderizarCalendarioReservas();
 
     // NUEVO: Control de Accesos por Roles (RBAC)
     const rolActual = sessionStorage.getItem('hotelAndino_userRol');
     
     // Reset display (mostrar todo por defecto para admin)
     document.getElementById('nav-huespedes').style.display = 'flex';
+    document.getElementById('nav-reservas').style.display = 'flex';
     document.getElementById('nav-comandas').style.display = 'flex';
     document.getElementById('nav-inventario').style.display = 'flex';
     document.getElementById('nav-caja').style.display = 'flex';
@@ -130,6 +137,7 @@ function actualizarVistas() {
 
     if (rolActual === 'Mesero') {
         document.getElementById('nav-huespedes').style.display = 'none';
+        document.getElementById('nav-reservas').style.display = 'none';
         document.getElementById('nav-inventario').style.display = 'none';
         document.getElementById('nav-caja').style.display = 'none';
         document.getElementById('nav-personal').style.display = 'none';
@@ -290,6 +298,197 @@ function realizarCheckout(documentoHuesped) {
         mostrarToast('✅ Check-out realizado. Huésped movido al historial.');
         actualizarVistas();
     }
+}
+
+/* ==========================================================================
+   3.5 MÓDULO RESERVAS
+   ========================================================================== */
+let mesActualReservas = new Date().getMonth();
+let anioActualReservas = new Date().getFullYear();
+
+function registrarReserva() {
+    let nombre = sanitizar(document.getElementById('reserva-nombre').value);
+    let doc = document.getElementById('reserva-documento').value;
+    let ingreso = document.getElementById('reserva-ingreso').value;
+    let salida = document.getElementById('reserva-salida').value;
+    let hab = document.getElementById('reserva-habitacion').value;
+    let plan = parseInt(document.getElementById('reserva-plan').value);
+
+    if (campoVacio(nombre) || campoVacio(doc) || campoVacio(ingreso) || campoVacio(salida) || campoVacio(hab)) {
+        mostrarToast('⚠️ Completa todos los campos obligatorios', 'error'); return;
+    }
+    if (!/^\d+$/.test(doc)) {
+        mostrarToast('⚠️ El documento solo puede contener números', 'error'); return;
+    }
+
+    let hoyStr = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    if (ingreso < hoyStr) {
+        mostrarToast('⚠️ La fecha de check-in no puede ser en el pasado', 'error'); return;
+    }
+
+    let dIngreso = new Date(ingreso);
+    let dSalida = new Date(salida);
+    if (dSalida <= dIngreso) {
+        mostrarToast('⚠️ La fecha de check-out debe ser posterior al check-in', 'error'); return;
+    }
+
+    // OVERBOOKING VALIDATION
+    let choca = false;
+    
+    // Check against active huespedes
+    let huespedActivo = baseDatos.huespedes.find(h => h.habitacion === hab.trim());
+    if (huespedActivo) {
+        // If the current guest's checkout is AFTER the new reservation's checkin, it's a crash
+        if (huespedActivo.salida > ingreso) {
+            choca = true;
+        }
+    }
+
+    // Check against other reservations for the same room
+    if (!choca) {
+        choca = baseDatos.reservas.some(r => {
+            if (r.habitacion === hab.trim()) {
+                // If new check-in is before existing checkout AND new check-out is after existing check-in
+                return (ingreso < r.salida && salida > r.ingreso);
+            }
+            return false;
+        });
+    }
+
+    if (choca) {
+        mostrarToast(`⚠️ La habitación ${hab} ya está ocupada o reservada en esas fechas`, 'error'); return;
+    }
+
+    nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+    let idReserva = "RES-" + Date.now();
+    baseDatos.reservas.push({
+        id: idReserva,
+        nombre, documento: doc, ingreso, salida, habitacion: hab, plan
+    });
+    
+    guardarDatos();
+    mostrarToast('✅ Reserva agendada exitosamente');
+    document.getElementById('reserva-nombre').value = '';
+    document.getElementById('reserva-documento').value = '';
+    document.getElementById('reserva-habitacion').value = '';
+    document.getElementById('reserva-ingreso').value = '';
+    document.getElementById('reserva-salida').value = '';
+    actualizarVistas();
+}
+
+function renderizarCalendarioReservas() {
+    const grid = document.getElementById('calendario-grid');
+    const labelMes = document.getElementById('calendario-mes-actual');
+    if (!grid || !labelMes) return;
+
+    grid.innerHTML = '';
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    labelMes.textContent = `${meses[mesActualReservas]} ${anioActualReservas}`;
+
+    let primerDia = new Date(anioActualReservas, mesActualReservas, 1).getDay();
+    let diasEnMes = new Date(anioActualReservas, mesActualReservas + 1, 0).getDate();
+
+    for (let i = 0; i < primerDia; i++) {
+        let div = document.createElement('div');
+        div.style.background = 'transparent';
+        grid.appendChild(div);
+    }
+
+    for (let dia = 1; dia <= diasEnMes; dia++) {
+        let div = document.createElement('div');
+        div.style.background = 'rgba(255,255,255,0.03)';
+        div.style.border = '1px solid rgba(255,255,255,0.05)';
+        div.style.borderRadius = '8px';
+        div.style.padding = '10px';
+        div.style.minHeight = '60px';
+        div.style.cursor = 'pointer';
+        div.style.position = 'relative';
+        div.style.transition = 'all 0.3s';
+        
+        let diaStr = `${anioActualReservas}-${(mesActualReservas+1).toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
+        
+        // Contar reservas que cruzan este día
+        let reservasDelDia = baseDatos.reservas.filter(r => diaStr >= r.ingreso && diaStr < r.salida);
+        
+        div.innerHTML = `<div style="color: var(--gold); font-weight: bold; margin-bottom: 5px;">${dia}</div>`;
+        
+        if (reservasDelDia.length > 0) {
+            div.innerHTML += `<div style="background: var(--gold); color: black; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;">${reservasDelDia.length}</div>`;
+        }
+
+        div.onmouseover = () => div.style.background = 'rgba(212, 168, 83, 0.1)';
+        div.onmouseout = () => div.style.background = 'rgba(255,255,255,0.03)';
+        div.onclick = () => verDetalleReserva(diaStr, reservasDelDia);
+
+        grid.appendChild(div);
+    }
+}
+
+function verDetalleReserva(fecha, reservas) {
+    document.getElementById('modal-reservas-dia').style.display = 'flex';
+    document.getElementById('modal-reservas-titulo').textContent = `Reservas para el ${fecha}`;
+    let lista = document.getElementById('modal-reservas-lista');
+    lista.innerHTML = '';
+
+    if (reservas.length === 0) {
+        lista.innerHTML = '<p style="color:var(--text-secondary); text-align:center;">No hay reservas para este día.</p>';
+        return;
+    }
+
+    reservas.forEach(r => {
+        lista.innerHTML += `
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: var(--gold);">${r.nombre}</h4>
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Hab: ${r.habitacion} | Doc: ${r.documento}</p>
+                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Del ${r.ingreso} al ${r.salida}</p>
+                </div>
+                <div style="display: flex; gap: 5px; flex-direction: column;">
+                    <button class="btn-sm" onclick="hacerCheckinReserva('${r.id}')" style="background: var(--success); color: black;">Check-in</button>
+                    <button class="btn-sm" onclick="cancelarReserva('${r.id}')" style="background: var(--danger); border-color: var(--danger); color: white;">Cancelar</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function cancelarReserva(id) {
+    if (confirm("¿Estás seguro de que deseas cancelar esta reserva?")) {
+        baseDatos.reservas = baseDatos.reservas.filter(r => r.id !== id);
+        guardarDatos();
+        mostrarToast('Reserva cancelada');
+        document.getElementById('modal-reservas-dia').style.display = 'none';
+        actualizarVistas();
+    }
+}
+
+function hacerCheckinReserva(id) {
+    let reserva = baseDatos.reservas.find(r => r.id === id);
+    if (!reserva) return;
+
+    let hoyStr = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    if (hoyStr < reserva.ingreso) {
+        if (!confirm("Esta reserva empieza en el futuro. ¿Hacer Check-in anticipado de todas formas?")) return;
+    }
+
+    // Mover a huéspedes
+    baseDatos.huespedes.push({
+        nombre: reserva.nombre,
+        documento: reserva.documento,
+        correo: "", // No lo guardamos en reserva por ahora
+        ingreso: reserva.ingreso,
+        salida: reserva.salida,
+        habitacion: reserva.habitacion,
+        plan: reserva.plan,
+        comidasHoy: 0
+    });
+
+    // Eliminar de reservas
+    baseDatos.reservas = baseDatos.reservas.filter(r => r.id !== id);
+    guardarDatos();
+    mostrarToast('✅ Check-in realizado. Huésped transferido.');
+    document.getElementById('modal-reservas-dia').style.display = 'none';
+    cambiarSeccion('huespedes');
 }
 
 /* ==========================================================================
