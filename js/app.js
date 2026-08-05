@@ -259,11 +259,28 @@ function registrarComanda() {
 
         let huesped = baseDatos.huespedes.find(h => h.id === idHuesped);
         
-        if (huesped.comidasHoy >= huesped.plan) {
-            mostrarToast(`El huésped ya consumió su plan de ${huesped.plan} comidas. Debe pagar como Externo.`, 'error');
+        // --- NUEVO: Validar qué comidas tiene permitidas según su plan ---
+        let comidasPermitidas = [];
+        if (huesped.plan === 3) comidasPermitidas = ['Desayuno', 'Almuerzo', 'Cena'];
+        if (huesped.plan === 2) comidasPermitidas = ['Desayuno', 'Cena'];
+        if (huesped.plan === 1) comidasPermitidas = ['Desayuno'];
+
+        if (!comidasPermitidas.includes(comida)) {
+            mostrarToast(`El plan de este huésped no incluye ${comida} de cortesía. Debe pagar como Externo.`, 'error');
             return;
         }
+
+        // --- NUEVO: Evitar que pida dos desayunos o dos almuerzos ---
+        if (!huesped.consumosHoy) huesped.consumosHoy = [];
+        
+        if (huesped.consumosHoy.includes(comida)) {
+            mostrarToast(`El huésped ya reclamó su ${comida} de cortesía hoy. Debe pagar como Externo.`, 'error');
+            return;
+        }
+
+        huesped.consumosHoy.push(comida); // Registrar qué comida consumió
         huesped.comidasHoy++;
+        
         clienteNombre = huesped.nombre;
         tipoRegistro = 'Cortesía (Plan)';
     } else {
