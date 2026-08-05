@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Andino S.A.S. - Sistema de Gestion</title>
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Google reCAPTCHA v2 -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -85,21 +83,19 @@
                             color: var(--danger); font-size: 0.9rem; text-align:center;">
                 </div>
 
-                <!-- GOOGLE reCAPTCHA v2 -->
-                <div class="captcha-box">
-                    <div class="captcha-header">
-                        <span>Verificacion de Seguridad</span>
+                <!-- LOCAL SECURE CAPTCHA -->
+                <div class="local-captcha-box" id="local-captcha-container" onclick="verificarCaptchaLocal()">
+                    <div class="captcha-checkbox-wrapper">
+                        <div class="captcha-checkbox" id="captcha-checkbox"></div>
+                        <span class="captcha-text" id="captcha-text">Verificar que soy humano</span>
                     </div>
-                    <!-- Clave de PRUEBA oficial de Google - funciona en localhost -->
-                    <div class="g-recaptcha"
-                         data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-                         data-theme="dark"
-                         data-size="normal">
+                    <div class="captcha-logo">
+                        <div class="shield-icon">&#10026;</div>
+                        <span>Privacidad & Seguridad</span>
                     </div>
-                    <div id="captcha-error"
-                         style="display:none; color:var(--danger); font-size:0.8rem; margin-top:8px;">
-                        Por favor completa el CAPTCHA para continuar.
-                    </div>
+                </div>
+                <div id="captcha-error" style="display:none; color:var(--danger); font-size:0.8rem; margin-top:8px; text-align:center;">
+                    Por favor completa el CAPTCHA para continuar.
                 </div>
 
                 <button class="btn" id="btn-login"

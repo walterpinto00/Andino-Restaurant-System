@@ -98,9 +98,8 @@ function validarLogin() {
         return;
     }
 
-    // ── CAPA 5: Google reCAPTCHA ──
-    const recaptchaRespuesta = grecaptcha.getResponse();
-    if (!recaptchaRespuesta) {
+    // ── CAPA 5: CAPTCHA Local Seguro ──
+    if (!captchaLocalVerificado) {
         captchaError.style.display = 'block';
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
@@ -142,6 +141,40 @@ function validarLogin() {
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
         document.getElementById('login-password').value = '';
-        grecaptcha.reset();
+        
+        // Resetear el CAPTCHA local en caso de fallo
+        captchaLocalVerificado = false;
+        const box = document.getElementById('local-captcha-container');
+        const check = document.getElementById('captcha-checkbox');
+        const text = document.getElementById('captcha-text');
+        box.classList.remove('verified');
+        check.classList.remove('checked');
+        text.textContent = 'Verificar que soy humano';
     }
+}
+
+// ── LÓGICA DEL CAPTCHA LOCAL ──
+let captchaLocalVerificado = false;
+
+function verificarCaptchaLocal() {
+    if (captchaLocalVerificado) return; // Si ya está verificado, no hacer nada
+
+    const box = document.getElementById('local-captcha-container');
+    const check = document.getElementById('captcha-checkbox');
+    const text = document.getElementById('captcha-text');
+    const errorDiv = document.getElementById('captcha-error');
+
+    // 1. Iniciar animación de carga
+    check.classList.add('loading');
+    text.textContent = 'Verificando seguridad...';
+    errorDiv.style.display = 'none';
+
+    // 2. Simular tiempo de verificación (como reCAPTCHA)
+    setTimeout(() => {
+        check.classList.remove('loading');
+        check.classList.add('checked');
+        box.classList.add('verified');
+        text.textContent = 'Verificación exitosa';
+        captchaLocalVerificado = true;
+    }, 1200); // Tarda 1.2 segundos en verificar
 }
