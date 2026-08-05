@@ -375,7 +375,12 @@
                     <div class="form-group">
                         <label>Plato a Servir</label>
                         <!-- Se llena con los productos del inventario en el JS -->
-                        <select id="comanda-plato"></select>
+                        <select id="comanda-plato" onchange="calcularTotalComanda()"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="comanda-cantidad" min="1" value="1" onchange="calcularTotalComanda()">
                     </div>
 
                     <div class="form-group">
@@ -388,6 +393,10 @@
                         <select id="comanda-mesero">
                             <!-- Se llena por JavaScript con baseDatos.personal -->
                         </select>
+                    </div>
+
+                    <div class="form-group" style="display:flex; align-items:center; justify-content:center; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px;">
+                        <span style="font-size: 1.2rem; color: var(--gold); font-weight: bold;">Total: <span id="comanda-total-visual">$0</span></span>
                     </div>
                 </div>
                 <button class="btn" onclick="registrarComanda()">Confirmar Comanda</button>
@@ -403,6 +412,8 @@
                         <th>Mesero</th>
                         <th>Comida</th>
                         <th>Plato</th>
+                        <th>Cant.</th>
+                        <th>Total</th>
                         <th>Tipo (Cortesia / Cobro)</th>
                     </tr>
                 </thead>

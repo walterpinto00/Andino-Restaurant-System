@@ -296,11 +296,27 @@ function toggleTipoCliente() {
     document.getElementById('grupo-externo').style.display = esExterno ? 'block' : 'none';
 }
 
+function calcularTotalComanda() {
+    let nombreIngrediente = document.getElementById('comanda-plato').value;
+    let cantidadInput = document.getElementById('comanda-cantidad');
+    let cantidad = cantidadInput ? (parseInt(cantidadInput.value) || 1) : 1;
+    let ingrediente = baseDatos.inventario.find(i => i.nombre === nombreIngrediente);
+    
+    let total = 0;
+    if (ingrediente) {
+        total = ingrediente.costo * cantidad;
+    }
+    let visual = document.getElementById('comanda-total-visual');
+    if (visual) visual.innerText = `$${total.toLocaleString()}`;
+}
+
 function registrarComanda() {
     let tipoCliente = document.getElementById('comanda-tipo').value;
     let documentoHuesped = document.getElementById('comanda-huesped').value;
     let comida = document.getElementById('comanda-comida').value;
     let nombreIngrediente = document.getElementById('comanda-plato').value;
+    let cantidadInput = document.getElementById('comanda-cantidad');
+    let cantidad = cantidadInput ? (parseInt(cantidadInput.value) || 1) : 1;
     let meseroAsignado = document.getElementById('comanda-mesero').value;
     
     let clienteNombre = "", tipoRegistro = "", valorCobrado = 0;
@@ -322,17 +338,15 @@ function registrarComanda() {
     }
 
     let ingrediente = baseDatos.inventario.find(i => i.nombre === nombreIngrediente);
-    if (!ingrediente || ingrediente.stock <= 0) {
-        mostrarToast(`Stock agotado. Revisa el inventario.`, 'error'); return;
+    if (!ingrediente || ingrediente.stock < cantidad) {
+        mostrarToast(`Stock insuficiente. Stock actual: ${ingrediente ? ingrediente.stock : 0}`, 'error'); return;
     }
 
     if (tipoCliente === 'huesped') {
-        const documentoHuesped = document.getElementById('comanda-huesped').value;
         if (!documentoHuesped) { mostrarToast('Selecciona un huésped', 'error'); return; }
 
         let huesped = baseDatos.huespedes.find(h => h.documento === documentoHuesped);
         
-        // --- NUEVO: Validar qué comidas tiene permitidas según su plan ---
         let comidasPermitidas = [];
         if (huesped.plan === 3) comidasPermitidas = ['Desayuno', 'Almuerzo', 'Cena'];
         if (huesped.plan === 2) comidasPermitidas = ['Desayuno', 'Cena'];
@@ -343,7 +357,6 @@ function registrarComanda() {
             return;
         }
 
-        // --- NUEVO: Evitar que pida dos desayunos o dos almuerzos ---
         if (!huesped.consumosHoy) huesped.consumosHoy = [];
         
         if (huesped.consumosHoy.includes(comida)) {
@@ -356,15 +369,16 @@ function registrarComanda() {
         
         clienteNombre = huesped.nombre;
         tipoRegistro = 'Cortesía (Plan)';
+        valorCobrado = 0;
     } else {
         clienteNombre = document.getElementById('comanda-externo').value;
         if (!clienteNombre) { mostrarToast('Ingresa el nombre del externo', 'error'); return; }
         tipoRegistro = 'Cobro';
-        valorCobrado = baseDatos.precioEstandar;
+        valorCobrado = ingrediente.costo * cantidad;
         document.getElementById('comanda-externo').value = '';
     }
 
-    ingrediente.stock--;
+    ingrediente.stock -= cantidad;
     
     // --- NUEVO: Procesar observaciones ---
     let notas = document.getElementById('comanda-notas').value.trim();
@@ -373,9 +387,21 @@ function registrarComanda() {
 
     let horaStr = horaActual + ':' + (minActual < 10 ? '0' : '') + minActual;
 
-    baseDatos.comandas.push({ hora: horaStr, cliente: clienteNombre, mesero: meseroAsignado, comida: comida, plato: platoFinal, tipo: tipoRegistro, valor: valorCobrado });
+    baseDatos.comandas.push({ 
+        hora: horaStr, 
+        cliente: clienteNombre, 
+        mesero: meseroAsignado, 
+        comida: comida, 
+        plato: platoFinal, 
+        cantidad: cantidad,
+        tipo: tipoRegistro, 
+        valor: valorCobrado 
+    });
+    
     guardarDatos();
-    mostrarToast('Comanda registrada correctamente');
+    mostrarToast('✅ Comanda registrada correctamente');
+    if (cantidadInput) cantidadInput.value = 1;
+    calcularTotalComanda();
     actualizarVistas();
 }
 
@@ -383,11 +409,14 @@ function renderizarComandas() {
     const tbody = document.getElementById('tabla-comandas');
     const selectPlato = document.getElementById('comanda-plato');
     const selectMesero = document.getElementById('comanda-mesero');
+    if(!tbody || !selectPlato || !selectMesero) return;
+    
     tbody.innerHTML = '';
     
     // Llenar Platos si está vacío
     if (selectPlato.options.length === 0) {
         baseDatos.inventario.forEach(i => { selectPlato.innerHTML += `<option value="${i.nombre}">${i.nombre}</option>`; });
+        setTimeout(calcularTotalComanda, 100);
     }
 
     // Llenar Meseros dinámicamente desde baseDatos.personal
@@ -406,7 +435,18 @@ function renderizarComandas() {
     let reversa = [...baseDatos.comandas].reverse();
     reversa.forEach(c => {
         let badgeType = c.tipo === 'Cobro' ? 'success' : 'gold';
-        tbody.innerHTML += `<tr><td>${c.hora}</td><td>${c.cliente}</td><td>${c.mesero || 'No asignado'}</td><td>${c.comida}</td><td>${c.plato}</td><td><span class="badge ${badgeType}">${c.tipo}</span></td></tr>`;
+        let totalStr = c.valor > 0 ? `$${c.valor.toLocaleString()}` : '--';
+        let cantStr = c.cantidad || 1;
+        tbody.innerHTML += `<tr>
+            <td>${c.hora}</td>
+            <td>${c.cliente}</td>
+            <td>${c.mesero || 'No asignado'}</td>
+            <td>${c.comida}</td>
+            <td>${c.plato}</td>
+            <td>${cantStr}</td>
+            <td style="color:var(--gold); font-weight:bold;">${totalStr}</td>
+            <td><span class="badge ${badgeType}">${c.tipo}</span></td>
+        </tr>`;
     });
 }
 
