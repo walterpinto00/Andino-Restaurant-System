@@ -12,21 +12,21 @@
    ========================================================================== */
 let baseDatos = {
     huespedes: [
-        { id: 1, nombre: "Juan PÃ©rez", documento: "102030", habitacion: "101", plan: 3, comidasHoy: 0 },
-        { id: 2, nombre: "MarÃ­a GÃ³mez", documento: "405060", habitacion: "102", plan: 1, comidasHoy: 0 }
+        { nombre: "Juan Pérez", documento: "102030", habitacion: "101", plan: 3, comidasHoy: 0 },
+        { nombre: "María Gómez", documento: "405060", habitacion: "102", plan: 1, comidasHoy: 0 }
     ],
     inventario: [
-        { id: 1, nombre: "Lomo de Res", stock: 15, unidad: "PorciÃ³n", costo: 12000 },
-        { id: 2, nombre: "SalmÃ³n", stock: 3, unidad: "PorciÃ³n", costo: 18000 }, // Stock crÃ­tico
-        { id: 3, nombre: "Pechuga de Pollo", stock: 20, unidad: "PorciÃ³n", costo: 6000 },
-        { id: 4, nombre: "Huevos", stock: 40, unidad: "Und", costo: 600 }
+        { nombre: "Lomo de Res", stock: 15, unidad: "Porción", costo: 12000 },
+        { nombre: "Salmón", stock: 3, unidad: "Porción", costo: 18000 }, // Stock crítico
+        { nombre: "Pechuga de Pollo", stock: 20, unidad: "Porción", costo: 6000 },
+        { nombre: "Huevos", stock: 40, unidad: "Und", costo: 600 }
     ],
     comandas: [],
     precioEstandar: 25000,
     personal: [
-        { id: 1, nombre: "Admin_User", usuario: "admin", clave: "123456", rol: "Administrador", estado: "Activo" },
-        { id: 2, nombre: "Recepción María", usuario: "recepcion", clave: "123456", rol: "Recepcionista", estado: "Activo" },
-        { id: 3, nombre: "Mesero Carlos", usuario: "mesero", clave: "123456", rol: "Mesero", estado: "Activo" }
+        { nombre: "Admin_User", usuario: "admin", clave: "123456", rol: "Administrador", estado: "Activo" },
+        { nombre: "Recepción María", usuario: "recepcion", clave: "123456", rol: "Recepcionista", estado: "Activo" },
+        { nombre: "Mesero Carlos", usuario: "mesero", clave: "123456", rol: "Mesero", estado: "Activo" }
     ]
 };
 
@@ -41,9 +41,9 @@ function cargarDatos() {
         // Migración para usuarios antiguos
         if (!baseDatos.personal) {
             baseDatos.personal = [
-                { id: 1, nombre: "Admin_User", usuario: "admin", clave: "123456", rol: "Administrador", estado: "Activo" },
-                { id: 2, nombre: "Recepción María", usuario: "recepcion", clave: "123456", rol: "Recepcionista", estado: "Activo" },
-                { id: 3, nombre: "Mesero Carlos", usuario: "mesero", clave: "123456", rol: "Mesero", estado: "Activo" }
+                { nombre: "Admin_User", usuario: "admin", clave: "123456", rol: "Administrador", estado: "Activo" },
+                { nombre: "Recepción María", usuario: "recepcion", clave: "123456", rol: "Recepcionista", estado: "Activo" },
+                { nombre: "Mesero Carlos", usuario: "mesero", clave: "123456", rol: "Mesero", estado: "Activo" }
             ];
             guardarDatos();
         } else {
@@ -54,7 +54,7 @@ function cargarDatos() {
                     if (p.rol === 'Administrador') p.usuario = 'admin';
                     else if (p.rol === 'Recepcionista') p.usuario = 'recepcion';
                     else if (p.rol === 'Mesero') p.usuario = 'mesero';
-                    else p.usuario = p.nombre.split(' ')[0].toLowerCase() + p.id;
+                    else p.usuario = p.nombre.split(' ')[0].toLowerCase() + (p.documento || Math.floor(Math.random()*1000));
                     
                     p.clave = '123456';
                     necesitaGuardar = true;
@@ -210,7 +210,7 @@ function registrarHuesped() {
 
     nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1); // Capitalizar
     baseDatos.huespedes.push({
-        id: Date.now(), nombre, documento: doc, correo, ingreso, salida, habitacion: hab, plan, comidasHoy: 0
+        nombre, documento: doc, correo, ingreso, salida, habitacion: hab, plan, comidasHoy: 0
     });
     guardarDatos();
     mostrarToast('✅ Huésped registrado exitosamente');
@@ -244,10 +244,10 @@ function renderizarHuespedes() {
             <td>Hab. ${h.habitacion}</td>
             <td><span class="badge" style="background:var(${colorBadge}); color:#11111a;">${textoPlan}</span></td>
             <td>${h.comidasHoy} / ${h.plan}</td>
-            <td><button class="btn" style="background: var(--danger); padding: 5px 10px; font-size: 0.8rem;" onclick="realizarCheckout(${h.id})">Check-out</button></td>
+            <td><button class="btn" style="background: var(--danger); padding: 5px 10px; font-size: 0.8rem;" onclick="realizarCheckout('${h.documento}')">Check-out</button></td>
         `;
         tbody.appendChild(fila);
-        selectComanda.innerHTML += `<option value="${h.id}">${h.nombre} (Hab. ${h.habitacion})</option>`;
+        selectComanda.innerHTML += `<option value="${h.documento}">${h.nombre} (Hab. ${h.habitacion})</option>`;
     });
 
     // Rellenar historial
@@ -270,10 +270,10 @@ function renderizarHuespedes() {
     });
 }
 
-function realizarCheckout(idHuesped) {
+function realizarCheckout(documentoHuesped) {
     if (!confirm('¿Estás seguro de realizar el Check-out de este huésped?')) return;
     
-    let index = baseDatos.huespedes.findIndex(h => h.id === idHuesped);
+    let index = baseDatos.huespedes.findIndex(h => h.documento === documentoHuesped);
     if (index > -1) {
         let huesped = baseDatos.huespedes[index];
         // Quitar de activos y mandar a historial
@@ -297,10 +297,11 @@ function toggleTipoCliente() {
 }
 
 function registrarComanda() {
-    const tipoCliente = document.getElementById('comanda-tipo').value;
-    const comida = document.getElementById('comanda-comida').value;
-    const ingredienteId = parseInt(document.getElementById('comanda-plato').value);
-    const meseroAsignado = document.getElementById('comanda-mesero').value;
+    let tipoCliente = document.getElementById('comanda-tipo').value;
+    let documentoHuesped = document.getElementById('comanda-huesped').value;
+    let comida = document.getElementById('comanda-comida').value;
+    let nombreIngrediente = document.getElementById('comanda-plato').value;
+    let meseroAsignado = document.getElementById('comanda-mesero').value;
     
     let clienteNombre = "", tipoRegistro = "", valorCobrado = 0;
 
@@ -320,16 +321,16 @@ function registrarComanda() {
         mostrarToast('La Cena solo se sirve de 6:00 PM a 9:30 PM', 'error'); return;
     }
 
-    let ingrediente = baseDatos.inventario.find(i => i.id === ingredienteId);
+    let ingrediente = baseDatos.inventario.find(i => i.nombre === nombreIngrediente);
     if (!ingrediente || ingrediente.stock <= 0) {
         mostrarToast(`Stock agotado. Revisa el inventario.`, 'error'); return;
     }
 
     if (tipoCliente === 'huesped') {
-        const idHuesped = parseInt(document.getElementById('comanda-huesped').value);
-        if (!idHuesped) { mostrarToast('Selecciona un huésped', 'error'); return; }
+        const documentoHuesped = document.getElementById('comanda-huesped').value;
+        if (!documentoHuesped) { mostrarToast('Selecciona un huésped', 'error'); return; }
 
-        let huesped = baseDatos.huespedes.find(h => h.id === idHuesped);
+        let huesped = baseDatos.huespedes.find(h => h.documento === documentoHuesped);
         
         // --- NUEVO: Validar qué comidas tiene permitidas según su plan ---
         let comidasPermitidas = [];
@@ -386,7 +387,7 @@ function renderizarComandas() {
     
     // Llenar Platos si está vacío
     if (selectPlato.options.length === 0) {
-        baseDatos.inventario.forEach(i => { selectPlato.innerHTML += `<option value="${i.id}">${i.nombre}</option>`; });
+        baseDatos.inventario.forEach(i => { selectPlato.innerHTML += `<option value="${i.nombre}">${i.nombre}</option>`; });
     }
 
     // Llenar Meseros dinámicamente desde baseDatos.personal
@@ -501,50 +502,44 @@ function renderizarCaja() {
    7. MÓDULO GESTIÓN DE PERSONAL Y ROLES
    ========================================================================== */
 function registrarPersonal() {
-    let nombre = document.getElementById('personal-nombre').value;
+    let nombre = sanitizar(document.getElementById('personal-nombre').value);
     let rol = document.getElementById('personal-rol').value;
 
-    if (campoVacio(nombre)) {
-        mostrarToast('Por favor, ingresa el nombre del empleado', 'error');
-        return;
-    }
+    if (campoVacio(nombre)) { mostrarToast('Ingresa un nombre', 'error'); return; }
 
-    let nuevoId = baseDatos.personal.length > 0 ? Math.max(...baseDatos.personal.map(p => p.id)) + 1 : 1;
-    
-    // Generar usuario automático a partir del primer nombre y una clave genérica
-    let usuarioGenerado = nombre.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + nuevoId;
-    let claveGenerica = "123456";
+    let usuario = "";
+    if (rol === 'Administrador') usuario = 'admin_' + nombre.split(' ')[0].toLowerCase();
+    else if (rol === 'Recepcionista') usuario = 'recepcion_' + nombre.split(' ')[0].toLowerCase();
+    else usuario = 'mesero_' + nombre.split(' ')[0].toLowerCase();
 
-    baseDatos.personal.push({ 
-        id: nuevoId, 
-        nombre: nombre, 
-        usuario: usuarioGenerado, 
-        clave: claveGenerica, 
-        rol: rol, 
-        estado: "Activo" 
+    baseDatos.personal.push({
+        nombre, usuario, clave: '123456', rol, estado: "Activo"
     });
     
     guardarDatos();
+    mostrarToast('✅ Empleado registrado. Usr: ' + usuario);
     document.getElementById('personal-nombre').value = '';
-    mostrarToast(`Empleado registrado. Usuario: ${usuarioGenerado} | Clave: 123456`);
     actualizarVistas();
 }
 
-function eliminarPersonal(index) {
+function eliminarPersonal(usuarioEmp) {
     if (confirm("¿Estás seguro de que deseas dar de baja a este empleado?")) {
-        baseDatos.personal[index].estado = "Inactivo";
-        guardarDatos();
-        mostrarToast('Empleado dado de baja');
-        actualizarVistas();
+        let emp = baseDatos.personal.find(p => p.usuario === usuarioEmp);
+        if (emp) {
+            emp.estado = "Inactivo";
+            guardarDatos();
+            mostrarToast('Empleado dado de baja');
+            actualizarVistas();
+        }
     }
 }
 
 function renderizarPersonal() {
     const tbody = document.getElementById('tabla-personal');
-    if (!tbody) return; // Por si el HTML aún no está listo
+    if (!tbody) return; 
     tbody.innerHTML = '';
 
-    baseDatos.personal.forEach((p, index) => {
+    baseDatos.personal.forEach(p => {
         let badgeRol = '';
         if (p.rol === 'Administrador') badgeRol = '<span class="badge danger">Admin</span>';
         else if (p.rol === 'Recepcionista') badgeRol = '<span class="badge gold">Recepción</span>';
@@ -553,17 +548,15 @@ function renderizarPersonal() {
         let estadoColor = p.estado === 'Activo' ? 'var(--success)' : 'var(--text-secondary)';
         
         let botonAccion = p.estado === 'Activo' 
-            ? `<button class="btn-sm" style="color:var(--danger); border-color:var(--danger)" onclick="eliminarPersonal(${index})">❌ Dar de Baja</button>`
+            ? `<button class="btn-sm" style="color:var(--danger); border-color:var(--danger)" onclick="eliminarPersonal('${p.usuario}')">❌ Dar de Baja</button>`
             : `<span style="color:var(--text-secondary)">Inactivo</span>`;
 
         tbody.innerHTML += `
             <tr style="opacity: ${p.estado === 'Activo' ? '1' : '0.5'}">
-                <td style="font-weight:bold;">${p.nombre}<br><small style="color:var(--text-secondary); font-weight:normal;">User: ${p.usuario || 'N/A'}</small></td>
+                <td style="font-weight:bold;">${p.nombre}<br><small style="color:var(--text-secondary); font-weight:normal;">User: ${p.usuario}</small></td>
                 <td>${badgeRol}</td>
                 <td style="color:${estadoColor}; font-weight:600;">${p.estado}</td>
                 <td>${botonAccion}</td>
             </tr>`;
     });
 }
-
-
