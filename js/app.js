@@ -345,6 +345,18 @@ function realizarCheckout(documentoHuesped) {
 let mesActualReservas = new Date().getMonth();
 let anioActualReservas = new Date().getFullYear();
 
+function cambiarMesReservas(delta) {
+    mesActualReservas += delta;
+    if (mesActualReservas > 11) {
+        mesActualReservas = 0;
+        anioActualReservas++;
+    } else if (mesActualReservas < 0) {
+        mesActualReservas = 11;
+        anioActualReservas--;
+    }
+    renderizarCalendarioReservas();
+}
+
 function registrarReserva() {
     let nombre = sanitizar(document.getElementById('reserva-nombre').value);
     let doc = document.getElementById('reserva-documento').value;
