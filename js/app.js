@@ -62,6 +62,11 @@ function cargarDatos() {
             });
             if (necesitaGuardar) guardarDatos();
         }
+
+        if (!baseDatos.historialHuespedes) {
+            baseDatos.historialHuespedes = [];
+            guardarDatos();
+        }
     } else {
         guardarDatos();
     }
@@ -239,10 +244,47 @@ function renderizarHuespedes() {
             <td>Hab. ${h.habitacion}</td>
             <td><span class="badge" style="background:var(${colorBadge}); color:#11111a;">${textoPlan}</span></td>
             <td>${h.comidasHoy} / ${h.plan}</td>
+            <td><button class="btn" style="background: var(--danger); padding: 5px 10px; font-size: 0.8rem;" onclick="realizarCheckout(${h.id})">Check-out</button></td>
         `;
         tbody.appendChild(fila);
         selectComanda.innerHTML += `<option value="${h.id}">${h.nombre} (Hab. ${h.habitacion})</option>`;
     });
+
+    // Rellenar historial
+    const tbodyHistorial = document.getElementById('tabla-historial-huespedes');
+    tbodyHistorial.innerHTML = '';
+    
+    if (!baseDatos.historialHuespedes) baseDatos.historialHuespedes = [];
+    
+    baseDatos.historialHuespedes.forEach(h => {
+        let fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td>${h.nombre}</td>
+            <td>${h.documento}</td>
+            <td>Hab. ${h.habitacion}</td>
+            <td>${h.ingreso || '--'}</td>
+            <td>${h.salida || '--'}</td>
+            <td><span class="badge" style="background:var(--danger); opacity:0.8; color:white;">Check-out</span></td>
+        `;
+        tbodyHistorial.appendChild(fila);
+    });
+}
+
+function realizarCheckout(idHuesped) {
+    if (!confirm('¿Estás seguro de realizar el Check-out de este huésped?')) return;
+    
+    let index = baseDatos.huespedes.findIndex(h => h.id === idHuesped);
+    if (index > -1) {
+        let huesped = baseDatos.huespedes[index];
+        // Quitar de activos y mandar a historial
+        baseDatos.huespedes.splice(index, 1);
+        if (!baseDatos.historialHuespedes) baseDatos.historialHuespedes = [];
+        baseDatos.historialHuespedes.push(huesped);
+        
+        guardarDatos();
+        mostrarToast('✅ Check-out realizado. Huésped movido al historial.');
+        actualizarVistas();
+    }
 }
 
 /* ==========================================================================
