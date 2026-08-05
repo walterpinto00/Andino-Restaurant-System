@@ -648,3 +648,13 @@ option {
   .login-branding { display: none; }
   .login-form-panel { width: 100%; }
 }
+/ *   E l i m i n a r   f l e c h a s   d e   i n p u t s   n u m é r i c o s   * / 
+ i n p u t [ t y p e = n u m b e r ] : : - w e b k i t - i n n e r - s p i n - b u t t o n ,   
+ i n p u t [ t y p e = n u m b e r ] : : - w e b k i t - o u t e r - s p i n - b u t t o n   {   
+     - w e b k i t - a p p e a r a n c e :   n o n e ;   
+     m a r g i n :   0 ;   
+ } 
+ i n p u t [ t y p e = n u m b e r ]   { 
+     - m o z - a p p e a r a n c e :   t e x t f i e l d ; 
+ }  
+ 
