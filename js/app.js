@@ -122,7 +122,6 @@ function actualizarVistas() {
     document.getElementById('nav-inventario').style.display = 'flex';
     document.getElementById('nav-caja').style.display = 'flex';
     document.getElementById('nav-personal').style.display = 'flex';
-    document.getElementById('nav-nosotros').style.display = 'flex';
 
     if (rolActual === 'Mesero') {
         document.getElementById('nav-huespedes').style.display = 'none';
