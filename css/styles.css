@@ -3,6 +3,144 @@
    Diseño Premium Dark Mode
    ========================================================================== */
 
+/* =================== PANTALLA DE LOGIN =================== */
+#login-overlay {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 9999;
+  display: flex;
+  transition: opacity 0.4s ease;
+  overflow: hidden;
+}
+
+/* Fondo animado con burbujas flotantes */
+.login-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(212,168,83,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(212,168,83,0.05) 0%, transparent 50%),
+              #08080e;
+  overflow: hidden;
+}
+.login-bg span {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(212, 168, 83, 0.06);
+  animation: float-bubble 8s infinite ease-in-out;
+}
+.login-bg span:nth-child(1) { width: 300px; height: 300px; top: -100px; left: -80px; animation-delay: 0s; }
+.login-bg span:nth-child(2) { width: 200px; height: 200px; top: 60%; right: -60px; animation-delay: 2s; }
+.login-bg span:nth-child(3) { width: 150px; height: 150px; bottom: -50px; left: 30%; animation-delay: 4s; }
+.login-bg span:nth-child(4) { width: 80px; height: 80px; top: 20%; left: 45%; animation-delay: 1s; }
+.login-bg span:nth-child(5) { width: 120px; height: 120px; top: 70%; left: 10%; animation-delay: 3s; }
+.login-bg span:nth-child(6) { width: 250px; height: 250px; bottom: -80px; right: 20%; animation-delay: 5s; }
+@keyframes float-bubble {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+
+/* Panel izquierdo: Branding del hotel */
+.login-branding {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 60px;
+}
+.login-brand-content { max-width: 400px; }
+.login-logo {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  display: block;
+  filter: drop-shadow(0 0 30px rgba(212,168,83,0.4));
+  animation: pulse-logo 3s ease-in-out infinite;
+}
+@keyframes pulse-logo {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(212,168,83,0.3)); }
+  50% { filter: drop-shadow(0 0 40px rgba(212,168,83,0.6)); }
+}
+.login-brand-content h1 {
+  font-size: 2.8rem; font-weight: 800;
+  margin: 0 0 10px 0;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.login-brand-content h1 span { color: var(--gold); }
+.login-brand-content > p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin: 0 0 40px 0;
+}
+.login-features { display: flex; flex-direction: column; gap: 16px; }
+.login-feature {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(212,168,83,0.15);
+  border-radius: 10px;
+  padding: 14px 18px;
+  transition: all 0.3s;
+}
+.login-feature:hover {
+  background: rgba(212,168,83,0.08);
+  border-color: rgba(212,168,83,0.35);
+  transform: translateX(6px);
+}
+.feature-icon { font-size: 1.3rem; }
+.login-feature span:last-child { color: var(--text-secondary); font-size: 0.95rem; }
+
+/* Panel derecho: Formulario */
+.login-form-panel {
+  width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 40px;
+  background: rgba(17,17,26,0.85);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(212,168,83,0.15);
+}
+.login-card { width: 100%; }
+.login-card-header { text-align: center; margin-bottom: 36px; }
+.login-avatar {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 16px;
+}
+.login-card-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+.login-card-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+.login-hint {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--text-secondary);
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(255,255,255,0.08);
+}
+.login-hint strong { color: var(--gold); }
+
+/* Animación de sacudida cuando la contraseña es incorrecta */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(8px); }
+}
+.shake { animation: shake 0.4s ease; }
+
 /* 1. Variables de colores y diseño para usar en todo el documento */
 :root {
   --bg-primary: #08080e;      /* Fondo oscuro principal */
