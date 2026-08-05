@@ -23,9 +23,13 @@ function soloNumeros(texto) {
     return /^\d+$/.test(texto.trim());
 }
 
-// --- VALIDACION 4: Sanitizar inputs (quitar caracteres peligrosos XSS) ---
+// --- VALIDACION 4: Sanitizar inputs (Prevenir XSS e Inyecciones SQL) ---
 function sanitizar(texto) {
-    return texto.replace(/[<>"'%;()&+]/g, '').trim();
+    if (!texto) return '';
+    let limpio = texto.replace(/[<>"'%;()&+]/g, '').trim();
+    // Simulador de Firewall Anti-SQL Injection (eliminar palabras clave)
+    limpio = limpio.replace(/\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|CREATE|FROM|WHERE)\b/gi, '');
+    return limpio.trim();
 }
 
 // --- VALIDACION 5: Verificar si un documento ya está registrado (evitar duplicados) ---

@@ -161,11 +161,16 @@ function registrarHuesped() {
     let nombre = sanitizar(document.getElementById('huesped-nombre').value);
     let doc = sanitizar(document.getElementById('huesped-doc').value);
     let hab = sanitizar(document.getElementById('huesped-hab').value);
+    let correo = sanitizar(document.getElementById('huesped-correo').value);
     let plan = parseInt(document.getElementById('huesped-plan').value);
 
     // V1: Campos vacíos
-    if (campoVacio(nombre) || campoVacio(doc) || campoVacio(hab)) {
+    if (campoVacio(nombre) || campoVacio(doc) || campoVacio(hab) || campoVacio(correo)) {
         mostrarToast('⚠️ Todos los campos son obligatorios', 'error'); return;
+    }
+    // V1.5: Validar formato de correo básico
+    if (!correo.includes('@') || !correo.includes('.')) {
+        mostrarToast('⚠️ Ingrese un correo electrónico válido', 'error'); return;
     }
     // V2: Nombre solo letras
     if (!soloLetras(nombre)) {
@@ -192,13 +197,14 @@ function registrarHuesped() {
 
     nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1); // Capitalizar
     baseDatos.huespedes.push({
-        id: Date.now(), nombre, documento: doc, habitacion: hab, plan, comidasHoy: 0
+        id: Date.now(), nombre, documento: doc, correo: correo, habitacion: hab, plan, comidasHoy: 0
     });
     guardarDatos();
     mostrarToast('✅ Huésped registrado exitosamente');
     document.getElementById('huesped-nombre').value = '';
     document.getElementById('huesped-doc').value = '';
     document.getElementById('huesped-hab').value = '';
+    document.getElementById('huesped-correo').value = '';
     actualizarVistas();
 }
 
@@ -206,12 +212,22 @@ function renderizarHuespedes() {
     const tbody = document.getElementById('tabla-huespedes');
     const selectComanda = document.getElementById('comanda-huesped');
     tbody.innerHTML = '';
-    selectComanda.innerHTML = '<option value="">-- Selecciona un huÃ©sped --</option>';
+    selectComanda.innerHTML = '<option value="">-- Selecciona un huésped --</option>';
 
     baseDatos.huespedes.forEach(h => {
-        let nombrePlan = h.plan === 3 ? 'PensiÃ³n Completa' : h.plan === 2 ? 'Media PensiÃ³n' : h.plan === 1 ? 'Solo Desayuno' : 'Solo Alojamiento';
-        let colorPlan = h.plan === 0 ? 'danger' : 'gold';
-        tbody.innerHTML += `<tr><td>${h.nombre}</td><td>${h.documento}</td><td>Hab. ${h.habitacion}</td><td><span class="badge ${colorPlan}">${nombrePlan}</span></td><td><strong>${h.comidasHoy}</strong> de ${h.plan} permitidas</td></tr>`;
+        let nombrePlan = h.plan === 3 ? 'Pensión Completa' : h.plan === 2 ? 'Media Pensión' : h.plan === 1 ? 'Solo Desayuno' : 'Solo Alojamiento';
+        let colorBadge = h.plan === 0 ? '--danger' : '--gold';
+        let textoPlan = nombrePlan;
+        let fila = document.createElement('tr');
+        fila.innerHTML = `
+            <td>${h.nombre}</td>
+            <td>${h.documento}</td>
+            <td>${h.correo || 'N/A'}</td>
+            <td>Hab. ${h.habitacion}</td>
+            <td><span class="badge" style="background:var(${colorBadge}); color:#11111a;">${textoPlan}</span></td>
+            <td>${h.comidasHoy} / ${h.plan}</td>
+        `;
+        tbody.appendChild(fila);
         selectComanda.innerHTML += `<option value="${h.id}">${h.nombre} (Hab. ${h.habitacion})</option>`;
     });
 }
