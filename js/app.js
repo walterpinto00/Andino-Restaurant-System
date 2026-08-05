@@ -1,9 +1,10 @@
+﻿// Versiu00f3n: 1.3.0 | Sistema Hotel Andino S.A.S. | Hackathon SENA 2026
 /**
  * ==========================================================================
- * HOTEL ANDINO S.A.S. - LÓGICA PRINCIPAL DEL SISTEMA (app.js)
+ * HOTEL ANDINO S.A.S. - LÃ“GICA PRINCIPAL DEL SISTEMA (app.js)
  * 
- * Todo el código está unificado en este archivo para cumplir con las 
- * reglas del Hackathon, pero dividido por bloques para fácil explicación.
+ * Todo el cÃ³digo estÃ¡ unificado en este archivo para cumplir con las 
+ * reglas del Hackathon, pero dividido por bloques para fÃ¡cil explicaciÃ³n.
  * ==========================================================================
  */
 
@@ -12,13 +13,13 @@
    ========================================================================== */
 let baseDatos = {
     huespedes: [
-        { id: 1, nombre: "Juan Pérez", documento: "102030", habitacion: "101", plan: 3, comidasHoy: 0 },
-        { id: 2, nombre: "María Gómez", documento: "405060", habitacion: "102", plan: 1, comidasHoy: 0 }
+        { id: 1, nombre: "Juan PÃ©rez", documento: "102030", habitacion: "101", plan: 3, comidasHoy: 0 },
+        { id: 2, nombre: "MarÃ­a GÃ³mez", documento: "405060", habitacion: "102", plan: 1, comidasHoy: 0 }
     ],
     inventario: [
-        { id: 1, nombre: "Lomo de Res", stock: 15, unidad: "Porción", costo: 12000 },
-        { id: 2, nombre: "Salmón", stock: 3, unidad: "Porción", costo: 18000 }, // Stock crítico
-        { id: 3, nombre: "Pechuga de Pollo", stock: 20, unidad: "Porción", costo: 6000 },
+        { id: 1, nombre: "Lomo de Res", stock: 15, unidad: "PorciÃ³n", costo: 12000 },
+        { id: 2, nombre: "SalmÃ³n", stock: 3, unidad: "PorciÃ³n", costo: 18000 }, // Stock crÃ­tico
+        { id: 3, nombre: "Pechuga de Pollo", stock: 20, unidad: "PorciÃ³n", costo: 6000 },
         { id: 4, nombre: "Huevos", stock: 40, unidad: "Und", costo: 600 }
     ],
     comandas: [],
@@ -39,12 +40,12 @@ function cargarDatos() {
 }
 
 /* ==========================================================================
-   2. INICIALIZACIÓN Y CONTROL DE VISTAS (APP.JS BASE)
+   2. INICIALIZACIÃ“N Y CONTROL DE VISTAS (APP.JS BASE)
    ========================================================================== */
 window.onload = function() {
     cargarDatos();
     
-    // Verificar si ya inició sesión en esta pestaña
+    // Verificar si ya iniciÃ³ sesiÃ³n en esta pestaÃ±a
     if (sessionStorage.getItem('hotelAndino_logged') === 'true') {
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('app-sidebar').style.display = 'flex';
@@ -54,22 +55,22 @@ window.onload = function() {
 };
 
 /**
- * Muestra/Oculta la contraseña en el login
+ * Muestra/Oculta la contraseÃ±a en el login
  */
 function togglePassword() {
     const input = document.getElementById('login-password');
     const btn = document.getElementById('btn-toggle-pw');
     if (input.type === 'password') {
         input.type = 'text';
-        btn.textContent = '🙈';
+        btn.textContent = 'ðŸ™ˆ';
     } else {
         input.type = 'password';
-        btn.textContent = '👁️';
+        btn.textContent = 'ðŸ‘ï¸';
     }
 }
 
 /**
- * Valida el usuario y contraseña del login
+ * Valida el usuario y contraseÃ±a del login
  */
 function validarLogin() {
     const usuario = document.getElementById('login-usuario').value.trim();
@@ -82,7 +83,7 @@ function validarLogin() {
     const PASSWORD_VALIDA = 'andino2024';
 
     if (!usuario || !password) {
-        errorDiv.textContent = '⚠️ Por favor completa todos los campos';
+        errorDiv.textContent = 'âš ï¸ Por favor completa todos los campos';
         errorDiv.style.display = 'block';
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
@@ -101,11 +102,11 @@ function validarLogin() {
             document.getElementById('app-sidebar').style.display = 'flex';
             document.getElementById('app-main').style.display = 'flex';
             actualizarVistas();
-            mostrarToast('👋 Bienvenido, ' + usuario + '!');
+            mostrarToast('ðŸ‘‹ Bienvenido, ' + usuario + '!');
         }, 400);
     } else {
         // Credenciales incorrectas
-        errorDiv.textContent = '❌ Usuario o contraseña incorrectos. Intenta de nuevo.';
+        errorDiv.textContent = 'âŒ Usuario o contraseÃ±a incorrectos. Intenta de nuevo.';
         errorDiv.style.display = 'block';
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
@@ -129,7 +130,7 @@ function mostrarToast(mensaje, tipo = 'success') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${tipo}`;
-    toast.innerHTML = `<span>${tipo === 'success' ? '✅' : '❌'}</span><span>${mensaje}</span>`;
+    toast.innerHTML = `<span>${tipo === 'success' ? 'âœ…' : 'âŒ'}</span><span>${mensaje}</span>`;
     container.appendChild(toast);
     setTimeout(() => {
         toast.style.opacity = '0';
@@ -158,7 +159,7 @@ function actualizarDashboard() {
 }
 
 /* ==========================================================================
-   3. MÓDULO HUÉSPEDES
+   3. MÃ“DULO HUÃ‰SPEDES
    ========================================================================== */
 function registrarHuesped() {
     let nombre = document.getElementById('huesped-nombre').value;
@@ -175,7 +176,7 @@ function registrarHuesped() {
         id: Date.now(), nombre: nombre, documento: doc, habitacion: hab, plan: plan, comidasHoy: 0
     });
     guardarDatos();
-    mostrarToast('Huésped registrado exitosamente');
+    mostrarToast('HuÃ©sped registrado exitosamente');
     
     document.getElementById('huesped-nombre').value = '';
     document.getElementById('huesped-doc').value = '';
@@ -187,10 +188,10 @@ function renderizarHuespedes() {
     const tbody = document.getElementById('tabla-huespedes');
     const selectComanda = document.getElementById('comanda-huesped');
     tbody.innerHTML = '';
-    selectComanda.innerHTML = '<option value="">-- Selecciona un huésped --</option>';
+    selectComanda.innerHTML = '<option value="">-- Selecciona un huÃ©sped --</option>';
 
     baseDatos.huespedes.forEach(h => {
-        let nombrePlan = h.plan === 3 ? 'Pensión Completa' : h.plan === 2 ? 'Media Pensión' : h.plan === 1 ? 'Solo Desayuno' : 'Solo Alojamiento';
+        let nombrePlan = h.plan === 3 ? 'PensiÃ³n Completa' : h.plan === 2 ? 'Media PensiÃ³n' : h.plan === 1 ? 'Solo Desayuno' : 'Solo Alojamiento';
         let colorPlan = h.plan === 0 ? 'danger' : 'gold';
         tbody.innerHTML += `<tr><td>${h.nombre}</td><td>${h.documento}</td><td>Hab. ${h.habitacion}</td><td><span class="badge ${colorPlan}">${nombrePlan}</span></td><td><strong>${h.comidasHoy}</strong> de ${h.plan} permitidas</td></tr>`;
         selectComanda.innerHTML += `<option value="${h.id}">${h.nombre} (Hab. ${h.habitacion})</option>`;
@@ -198,7 +199,7 @@ function renderizarHuespedes() {
 }
 
 /* ==========================================================================
-   4. MÓDULO COMANDAS Y VALIDACIÓN
+   4. MÃ“DULO COMANDAS Y VALIDACIÃ“N
    ========================================================================== */
 function toggleTipoCliente() {
     const esExterno = document.getElementById('comanda-tipo').value === 'externo';
@@ -221,17 +222,17 @@ function registrarComanda() {
 
     if (tipoCliente === 'huesped') {
         const idHuesped = parseInt(document.getElementById('comanda-huesped').value);
-        if (!idHuesped) { mostrarToast('Selecciona un huésped', 'error'); return; }
+        if (!idHuesped) { mostrarToast('Selecciona un huÃ©sped', 'error'); return; }
 
         let huesped = baseDatos.huespedes.find(h => h.id === idHuesped);
         
         if (huesped.comidasHoy >= huesped.plan) {
-            mostrarToast(`El huésped ya consumió su plan de ${huesped.plan} comidas. Debe pagar como Externo.`, 'error');
+            mostrarToast(`El huÃ©sped ya consumiÃ³ su plan de ${huesped.plan} comidas. Debe pagar como Externo.`, 'error');
             return;
         }
         huesped.comidasHoy++;
         clienteNombre = huesped.nombre;
-        tipoRegistro = 'Cortesía (Plan)';
+        tipoRegistro = 'CortesÃ­a (Plan)';
     } else {
         clienteNombre = document.getElementById('comanda-externo').value;
         if (!clienteNombre) { mostrarToast('Ingresa el nombre del externo', 'error'); return; }
@@ -267,25 +268,25 @@ function renderizarComandas() {
 }
 
 /* ==========================================================================
-   5. MÓDULO INVENTARIO (SISTEMA STOP)
+   5. MÃ“DULO INVENTARIO (SISTEMA STOP)
    ========================================================================== */
 function renderizarInventario() {
     const tbody = document.getElementById('tabla-inventario');
     tbody.innerHTML = '';
 
     baseDatos.inventario.forEach((item, index) => {
-        let badgeEstado = item.stock < 5 ? '<span class="badge danger">STOP - CRÍTICO</span>' : '<span class="badge success">Disponible</span>';
+        let badgeEstado = item.stock < 5 ? '<span class="badge danger">STOP - CRÃTICO</span>' : '<span class="badge success">Disponible</span>';
         tbody.innerHTML += `<tr><td>${item.nombre}</td><td style="font-size: 1.2rem; font-weight: bold;">${item.stock}</td><td>${item.unidad}</td><td>$${item.costo.toLocaleString()}</td><td>${badgeEstado}</td><td><button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="sumarInventario(${index})">+ Agregar</button></td></tr>`;
     });
 }
 
 function sumarInventario(index) {
-    let cantidadStr = prompt("¿Cuántas unidades deseas agregar al inventario?");
+    let cantidadStr = prompt("Â¿CuÃ¡ntas unidades deseas agregar al inventario?");
     if (cantidadStr === null || cantidadStr.trim() === "") return;
     
     let cantidad = parseInt(cantidadStr);
     if (isNaN(cantidad) || cantidad <= 0) {
-        mostrarToast('Por favor, ingresa un número válido mayor a 0', 'error');
+        mostrarToast('Por favor, ingresa un nÃºmero vÃ¡lido mayor a 0', 'error');
         return;
     }
 
@@ -296,7 +297,7 @@ function sumarInventario(index) {
 }
 
 /* ==========================================================================
-   6. MÓDULO CAJA DIARIA
+   6. MÃ“DULO CAJA DIARIA
    ========================================================================== */
 function renderizarCaja() {
     const tbody = document.getElementById('tabla-caja');
@@ -316,3 +317,4 @@ function renderizarCaja() {
     document.getElementById('caja-cortesias').textContent = totalCortesias + ' servidas';
     if (totalRecaudado === 0) tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-secondary);">No hay ingresos registrados hoy</td></tr>`;
 }
+
