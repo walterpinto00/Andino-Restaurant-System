@@ -154,6 +154,19 @@ function validarLogin() {
             bloqueadoHasta = new Date(new Date().getTime() + 30000);
             intentosFallidos = 0;
             errorDiv.textContent = '🔒 Demasiados intentos. Sistema bloqueado por 30 segundos.';
+            
+            // Iniciar conteo regresivo visual
+            let countdown = setInterval(() => {
+                let faltan = Math.ceil((bloqueadoHasta - new Date()) / 1000);
+                if (faltan <= 0) {
+                    clearInterval(countdown);
+                    bloqueadoHasta = null;
+                    errorDiv.style.display = 'none';
+                } else {
+                    errorDiv.textContent = `🔒 Sistema bloqueado. Espera ${faltan} segundos.`;
+                }
+            }, 1000);
+
         } else {
             errorDiv.textContent = `❌ Credenciales incorrectas. Te quedan ${restantes} intento(s).`;
         }
