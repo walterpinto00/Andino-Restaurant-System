@@ -22,7 +22,12 @@ let baseDatos = {
         { id: 4, nombre: "Huevos", stock: 40, unidad: "Und", costo: 600 }
     ],
     comandas: [],
-    precioEstandar: 25000 
+    precioEstandar: 25000,
+    personal: [
+        { id: 1, nombre: "Mesero Carlos", rol: "Mesero", estado: "Activo" },
+        { id: 2, nombre: "Admin_User", rol: "Administrador", estado: "Activo" },
+        { id: 3, nombre: "Recepción María", rol: "Recepcionista", estado: "Activo" }
+    ]
 };
 
 function guardarDatos() {
@@ -33,6 +38,15 @@ function cargarDatos() {
     let datosGuardados = localStorage.getItem('hotelAndino_DB');
     if (datosGuardados) {
         baseDatos = JSON.parse(datosGuardados);
+        // Migración para usuarios antiguos
+        if (!baseDatos.personal) {
+            baseDatos.personal = [
+                { id: 1, nombre: "Mesero Carlos", rol: "Mesero", estado: "Activo" },
+                { id: 2, nombre: "Admin_User", rol: "Administrador", estado: "Activo" },
+                { id: 3, nombre: "Recepción María", rol: "Recepcionista", estado: "Activo" }
+            ];
+            guardarDatos();
+        }
     } else {
         guardarDatos();
     }
@@ -79,9 +93,10 @@ function mostrarToast(mensaje, tipo = 'success') {
 function actualizarVistas() {
     actualizarDashboard();
     renderizarHuespedes();
-    renderizarComandas();
     renderizarInventario();
     renderizarCaja();
+    renderizarPersonal(); // NUEVO
+    renderizarComandas(); // Se llama después para asegurar que toma los meseros
 }
 
 function actualizarDashboard() {
@@ -229,10 +244,25 @@ function registrarComanda() {
 function renderizarComandas() {
     const tbody = document.getElementById('tabla-comandas');
     const selectPlato = document.getElementById('comanda-plato');
+    const selectMesero = document.getElementById('comanda-mesero');
     tbody.innerHTML = '';
     
+    // Llenar Platos si está vacío
     if (selectPlato.options.length === 0) {
         baseDatos.inventario.forEach(i => { selectPlato.innerHTML += `<option value="${i.id}">${i.nombre}</option>`; });
+    }
+
+    // Llenar Meseros dinámicamente desde baseDatos.personal
+    selectMesero.innerHTML = '';
+    let hayMeseros = false;
+    baseDatos.personal.forEach(p => {
+        if (p.rol === 'Mesero' && p.estado === 'Activo') {
+            selectMesero.innerHTML += `<option value="${p.nombre}">${p.nombre}</option>`;
+            hayMeseros = true;
+        }
+    });
+    if (!hayMeseros) {
+        selectMesero.innerHTML = `<option value="">No hay meseros activos</option>`;
     }
 
     let reversa = [...baseDatos.comandas].reverse();
@@ -328,4 +358,63 @@ function renderizarCaja() {
     document.getElementById('caja-cortesias').textContent = totalCortesias + ' servidas';
     if (totalRecaudado === 0) tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-secondary);">No hay ingresos registrados hoy</td></tr>`;
 }
+
+
+/* ==========================================================================
+   7. MÓDULO GESTIÓN DE PERSONAL Y ROLES
+   ========================================================================== */
+function registrarPersonal() {
+    let nombre = document.getElementById('personal-nombre').value;
+    let rol = document.getElementById('personal-rol').value;
+
+    if (campoVacio(nombre)) {
+        mostrarToast('Por favor, ingresa el nombre del empleado', 'error');
+        return;
+    }
+
+    let nuevoId = baseDatos.personal.length > 0 ? Math.max(...baseDatos.personal.map(p => p.id)) + 1 : 1;
+    baseDatos.personal.push({ id: nuevoId, nombre: nombre, rol: rol, estado: "Activo" });
+    
+    guardarDatos();
+    document.getElementById('personal-nombre').value = '';
+    mostrarToast(`Personal registrado: ${nombre} (${rol})`);
+    actualizarVistas();
+}
+
+function eliminarPersonal(index) {
+    if (confirm("¿Estás seguro de que deseas dar de baja a este empleado?")) {
+        baseDatos.personal[index].estado = "Inactivo";
+        guardarDatos();
+        mostrarToast('Empleado dado de baja');
+        actualizarVistas();
+    }
+}
+
+function renderizarPersonal() {
+    const tbody = document.getElementById('tabla-personal');
+    if (!tbody) return; // Por si el HTML aún no está listo
+    tbody.innerHTML = '';
+
+    baseDatos.personal.forEach((p, index) => {
+        let badgeRol = '';
+        if (p.rol === 'Administrador') badgeRol = '<span class="badge danger">Admin</span>';
+        else if (p.rol === 'Recepcionista') badgeRol = '<span class="badge gold">Recepción</span>';
+        else badgeRol = '<span class="badge success">Mesero</span>';
+
+        let estadoColor = p.estado === 'Activo' ? 'var(--success)' : 'var(--text-secondary)';
+        
+        let botonAccion = p.estado === 'Activo' 
+            ? `<button class="btn-sm" style="color:var(--danger); border-color:var(--danger)" onclick="eliminarPersonal(${index})">❌ Dar de Baja</button>`
+            : `<span style="color:var(--text-secondary)">Inactivo</span>`;
+
+        tbody.innerHTML += `
+            <tr style="opacity: ${p.estado === 'Activo' ? '1' : '0.5'}">
+                <td style="font-weight:bold;">${p.nombre}</td>
+                <td>${badgeRol}</td>
+                <td style="color:${estadoColor}; font-weight:600;">${p.estado}</td>
+                <td>${botonAccion}</td>
+            </tr>`;
+    });
+}
+
 
