@@ -46,6 +46,21 @@ function cargarDatos() {
                 { id: 3, nombre: "Mesero Carlos", usuario: "mesero", clave: "123456", rol: "Mesero", estado: "Activo" }
             ];
             guardarDatos();
+        } else {
+            // Parche para agregar credenciales a la nómina si se actualizó el sistema después de crearlos
+            let necesitaGuardar = false;
+            baseDatos.personal.forEach(p => {
+                if (!p.usuario || !p.clave) {
+                    if (p.rol === 'Administrador') p.usuario = 'admin';
+                    else if (p.rol === 'Recepcionista') p.usuario = 'recepcion';
+                    else if (p.rol === 'Mesero') p.usuario = 'mesero';
+                    else p.usuario = p.nombre.split(' ')[0].toLowerCase() + p.id;
+                    
+                    p.clave = '123456';
+                    necesitaGuardar = true;
+                }
+            });
+            if (necesitaGuardar) guardarDatos();
         }
     } else {
         guardarDatos();
