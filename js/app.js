@@ -201,7 +201,12 @@ function registrarHuesped() {
         mostrarToast(`⚠️ La habitación ${hab} ya está ocupada por otro huésped`, 'error'); return;
     }
 
-    // V6: Validar orden de fechas
+    // V6: Validar orden y fechas pasadas
+    let hoyStr = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    if (ingreso < hoyStr) {
+        mostrarToast('⚠️ La fecha de ingreso no puede ser en el pasado', 'error'); return;
+    }
+
     let dIngreso = new Date(ingreso);
     let dSalida = new Date(salida);
     if (dSalida <= dIngreso) {
