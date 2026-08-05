@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Andino S.A.S. - Sistema de Gestión</title>
+    <!-- Vinculamos la hoja de estilos externa -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- ==========================================
+         PANTALLA DE LOGIN (SEGURIDAD)
+         ========================================== -->
+    <div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-primary); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+        <div class="card" style="width: 350px; text-align: center;">
+            <h2 style="color: var(--gold); margin-top: 0;">🏨 Andino</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 25px;">Sistema de Gestión S.A.S.</p>
+            
+            <div class="form-group" style="text-align: left;">
+                <label>PIN de Acceso</label>
+                <input type="password" id="login-pin" placeholder="Ingresa el PIN (1234)">
+            </div>
+            
+            <button class="btn" style="width: 100%; margin-top: 10px;" onclick="validarLogin()">Ingresar al Sistema</button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         BARRA LATERAL (Menú de Navegación)
+         ========================================== -->
+    <aside class="sidebar" id="app-sidebar" style="display: none;">
+        <div class="sidebar-logo">
+            <h2>🏨 Andino</h2>
+            <p>Sistema de Gestión S.A.S.</p>
+        </div>
+        
+        <nav class="nav-menu">
+            <!-- Cada botón llama a la función cambiarSeccion() de JavaScript -->
+            <div id="nav-dashboard" class="nav-item active" onclick="cambiarSeccion('dashboard')">
+                📊 Dashboard General
+            </div>
+            <div id="nav-huespedes" class="nav-item" onclick="cambiarSeccion('huespedes')">
+                🛏️ Gestión Huéspedes
+            </div>
+            <div id="nav-comandas" class="nav-item" onclick="cambiarSeccion('comandas')">
+                🍽️ Comandas y Pedidos
+            </div>
+            <div id="nav-inventario" class="nav-item" onclick="cambiarSeccion('inventario')">
+                📦 Inventario (STOP)
+            </div>
+            <div id="nav-caja" class="nav-item" onclick="cambiarSeccion('caja')">
+                💰 Flujo de Caja
+            </div>
+        </nav>
+    </aside>
+
+    <!-- ==========================================
+         CONTENEDOR PRINCIPAL
+         ========================================== -->
+    <main class="main-content" id="app-main" style="display: none;">
+        
+        <header class="top-header">
+            <h1>Hotel Andino S.A.S.</h1>
+        </header>
+
+        <!-- Contenedor para las notificaciones (Toasts) -->
+        <div id="toast-container"></div>
+
+        <!-- ==========================================
+             VISTA 1: DASHBOARD
+             ========================================== -->
+        <section id="seccion-dashboard" class="view-section active">
+            <h2 style="margin-top: 0;">Resumen Operativo</h2>
+            <p style="color: var(--text-secondary);">Métricas principales del hotel y restaurante del día de hoy.</p>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Platos Servidos Hoy</h3>
+                    <p class="value" id="dash-platos">0</p>
+                </div>
+                <div class="card">
+                    <h3>Ingresos del Día (Externos)</h3>
+                    <p class="value" style="color: var(--success);" id="dash-ingresos">$0</p>
+                </div>
+                <div class="card">
+                    <h3>Alertas de Inventario (STOP)</h3>
+                    <p class="value" id="dash-alertas">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             VISTA 2: HUÉSPEDES
+             ========================================== -->
+        <section id="seccion-huespedes" class="view-section">
+            <h2 style="margin-top: 0;">Gestión de Huéspedes</h2>
+            
+            <!-- Formulario de Registro -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3>Registrar Nuevo Huésped</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="huesped-nombre" placeholder="Ej. Carlos Martínez">
+                    </div>
+                    <div class="form-group">
+                        <label>Documento de Identidad</label>
+                        <input type="text" id="huesped-doc" placeholder="Número de cédula">
+                    </div>
+                    <div class="form-group">
+                        <label>Habitación</label>
+                        <input type="text" id="huesped-hab" placeholder="Ej. 101">
+                    </div>
+                    <div class="form-group">
+                        <label>Plan de Alimentación</label>
+                        <!-- El 'value' define cuántas comidas gratis tiene -->
+                        <select id="huesped-plan">
+                            <option value="3">Pensión Completa (3 comidas)</option>
+                            <option value="2">Media Pensión (2 comidas)</option>
+                            <option value="1">Alojamiento y Desayuno (1 comida)</option>
+                            <option value="0">Solo Alojamiento (0 comidas)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="registrarHuesped()">Guardar Huésped</button>
+            </div>
+
+            <!-- Tabla de Huéspedes -->
+            <h3>Huéspedes Actuales</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Documento</th>
+                        <th>Habitación</th>
+                        <th>Plan</th>
+                        <th>Consumo de Comidas</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-huespedes">
+                    <!-- Rellenado con JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ==========================================
+             VISTA 3: COMANDAS
+             ========================================== -->
+        <section id="seccion-comandas" class="view-section">
+            <h2 style="margin-top: 0;">Registro de Comandas</h2>
+            
+            <div class="card" style="margin-bottom: 30px; border-left: 4px solid var(--gold);">
+                <h3>Registrar Pedido</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    
+                    <div class="form-group">
+                        <label>Tipo de Cliente</label>
+                        <select id="comanda-tipo" onchange="toggleTipoCliente()">
+                            <option value="huesped">Huésped (Descuenta de su Plan)</option>
+                            <option value="externo">Cliente Externo (Se Cobra de Inmediato)</option>
+                        </select>
+                    </div>
+
+                    <!-- Si es Huésped -->
+                    <div class="form-group" id="grupo-huesped">
+                        <label>Seleccionar Huésped</label>
+                        <select id="comanda-huesped">
+                            <!-- Rellenado por JS -->
+                        </select>
+                    </div>
+
+                    <!-- Si es Externo -->
+                    <div class="form-group" id="grupo-externo" style="display: none;">
+                        <label>Nombre del Cliente Externo</label>
+                        <input type="text" id="comanda-externo" placeholder="Nombre completo">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tipo de Comida</label>
+                        <select id="comanda-comida">
+                            <option value="Desayuno">☀️ Desayuno</option>
+                            <option value="Almuerzo">🌤️ Almuerzo</option>
+                            <option value="Cena">🌙 Cena</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Plato a Servir</label>
+                        <!-- Se llena con los productos del inventario en el JS -->
+                        <select id="comanda-plato">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mesero Asignado</label>
+                        <select id="comanda-mesero">
+                            <option value="Mesero Carlos">Mesero Carlos</option>
+                            <option value="Mesero Ana">Mesero Ana</option>
+                            <option value="Mesero Luis">Mesero Luis</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="registrarComanda()">Confirmar Comanda</button>
+            </div>
+
+            <!-- Tabla de Comandas -->
+            <h3>Comandas del Día</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Cliente</th>
+                        <th>Mesero</th>
+                        <th>Comida</th>
+                        <th>Plato</th>
+                        <th>Tipo (Cortesía / Cobro)</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-comandas">
+                    <!-- Rellenado con JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ==========================================
+             VISTA 4: INVENTARIO
+             ========================================== -->
+        <section id="seccion-inventario" class="view-section">
+            <h2 style="margin-top: 0;">Inventario (Sistema STOP)</h2>
+            <p style="color: var(--text-secondary);">Cuando el stock de un producto llegue a menos de 5, el sistema lanzará una alerta roja (STOP) para no permitir ventas hasta recargar.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Stock Actual</th>
+                        <th>Unidad</th>
+                        <th>Costo Aprox.</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-inventario">
+                    <!-- Rellenado con JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ==========================================
+             VISTA 5: CAJA DIARIA
+             ========================================== -->
+        <section id="seccion-caja" class="view-section">
+            <h2 style="margin-top: 0;">Flujo de Caja Diario</h2>
+
+            <div class="card-grid">
+                <div class="card" style="border-left: 4px solid var(--success);">
+                    <h3>Total Recaudado (Ventas Externas)</h3>
+                    <p class="value" style="color: var(--success);" id="caja-total">$0</p>
+                </div>
+                <div class="card" style="border-left: 4px solid var(--gold);">
+                    <h3>Platos Servidos (Cortesía Huéspedes)</h3>
+                    <p class="value" id="caja-cortesias">0</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Movimientos de Ingresos Hoy</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hora</th>
+                        <th>Descripción</th>
+                        <th>Ingreso</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-caja">
+                    <!-- Rellenado con JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <!-- Vinculamos el único archivo de JavaScript que contiene toda la lógica -->
+    <script src="js/app.js"></script>
+</body>
+</html>
