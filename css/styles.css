@@ -86,8 +86,27 @@
   border-color: rgba(212,168,83,0.35);
   transform: translateX(6px);
 }
-.feature-icon { font-size: 1.3rem; }
-.login-feature span:last-child { color: var(--text-secondary); font-size: 0.95rem; }
+.feature-icon { display: none; } /* El icono va de fondo, no en el texto */
+.login-feature span:last-child { color: var(--text-primary); font-size: 0.95rem; font-weight: 500; }
+
+/* Iconos GRANDES de fondo decorativo en cada tarjeta */
+.login-feature { position: relative; overflow: hidden; }
+.login-feature::before {
+  content: attr(data-icon);
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 4rem;
+  opacity: 0.08;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  line-height: 1;
+}
+.login-feature:hover::before {
+  opacity: 0.18;
+  transform: translateY(-50%) scale(1.1);
+}
 
 /* Panel derecho: Formulario */
 .login-form-panel {
@@ -105,9 +124,27 @@
 .login-card { width: 100%; }
 .login-card-header { text-align: center; margin-bottom: 36px; }
 .login-avatar {
-  font-size: 3rem;
+  font-size: 3.5rem;
   display: block;
   margin-bottom: 16px;
+  width: 80px;
+  height: 80px;
+  line-height: 80px;
+  border-radius: 50%;
+  background: rgba(212,168,83,0.1);
+  border: 2px solid rgba(212,168,83,0.3);
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  overflow: hidden;
+}
+.login-avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(212,168,83,0.2), transparent 70%);
+  border-radius: 50%;
 }
 .login-card-header h2 {
   margin: 0 0 8px 0;
