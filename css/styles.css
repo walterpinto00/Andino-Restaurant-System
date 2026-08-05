@@ -414,3 +414,9 @@ option {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
+/* Responsive: adaptacion para pantallas pequenas */
+@media (max-width: 900px) {
+  .login-branding { display: none; }
+  .login-form-panel { width: 100%; }
+}
