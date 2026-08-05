@@ -1,65 +1,11 @@
-// Versiu00f3n: 1.3.0 | Sistema Hotel Andino S.A.S. | Hackathon SENA 2026
 /**
  * ==========================================================================
- * HOTEL ANDINO S.A.S. - LÃ“GICA PRINCIPAL DEL SISTEMA (app.js)
+ * HOTEL ANDINO S.A.S. - APP.JS
  * 
- * Todo el cÃ³digo estÃ¡ unificado en este archivo para cumplir con las 
- * reglas del Hackathon, pero dividido por bloques para fÃ¡cil explicaciÃ³n.
+ * Logica principal del sistema: vistas, modulos y navegacion.
+ * Depende de: validaciones.js y seguridad.js
  * ==========================================================================
  */
-
-/* ==========================================================================
-   0. SEGURIDAD Y VALIDACIONES DEL SISTEMA
-   ========================================================================== */
-
-// --- VALIDACION 1: Control de intentos de login ---
-let intentosFallidos = 0;
-const MAX_INTENTOS = 3;
-let bloqueadoHasta = null;
-
-// --- VALIDACION 2: Timeout de sesión (20 minutos inactivo cierra sesion) ---
-let timerSesion = null;
-const TIEMPO_SESION = 20 * 60 * 1000; // 20 minutos
-
-function reiniciarTimerSesion() {
-    clearTimeout(timerSesion);
-    timerSesion = setTimeout(() => {
-        if (sessionStorage.getItem('hotelAndino_logged') === 'true') {
-            sessionStorage.removeItem('hotelAndino_logged');
-            location.reload();
-            mostrarToast('Sesión cerrada por inactividad', 'error');
-        }
-    }, TIEMPO_SESION);
-}
-// Reiniciar el timer en cada clic o tecla del usuario
-document.addEventListener('click', reiniciarTimerSesion);
-document.addEventListener('keypress', reiniciarTimerSesion);
-
-// --- VALIDACION 3: Sanitizar inputs (quitar caracteres peligrosos) ---
-function sanitizar(texto) {
-    return texto.replace(/[<>"'%;()&+]/g, '').trim();
-}
-
-// --- VALIDACION 4: Validar que solo sean letras (para nombres) ---
-function soloLetras(texto) {
-    return /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(texto.trim());
-}
-
-// --- VALIDACION 5: Validar que solo sean números (para documentos) ---
-function soloNumeros(texto) {
-    return /^\d+$/.test(texto.trim());
-}
-
-// --- VALIDACION 6: Verificar si un huésped ya está registrado ---
-function documentoExiste(doc) {
-    return baseDatos.huespedes.some(h => h.documento === doc.trim());
-}
-
-// --- VALIDACION 7: Verificar que el campo no esté vacío ---
-function campoVacio(valor) {
-    return !valor || valor.trim() === '';
-}
-
 
 /* ==========================================================================
    1. BASE DE DATOS Y ESTADO GLOBAL

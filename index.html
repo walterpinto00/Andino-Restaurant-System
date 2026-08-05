@@ -350,10 +350,15 @@
         </section>
 
     </main>
-/*hola mundo*
- 
-    <!-- Vinculamos el Ãºnico archivo de JavaScript que contiene toda la lÃ³gica -->
+
+    <!--
+        ARCHIVOS JAVASCRIPT DEL SISTEMA (en orden de dependencia):
+        1. validaciones.js  → Funciones de validación de datos
+        2. seguridad.js     → Login, bloqueo por intentos, sesión y reCAPTCHA
+        3. app.js           → Lógica principal: vistas, módulos y navegación
+    -->
+    <script src="js/validaciones.js"></script>
+    <script src="js/seguridad.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
-
