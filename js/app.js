@@ -169,6 +169,22 @@ function registrarComanda() {
     
     let clienteNombre = "", tipoRegistro = "", valorCobrado = 0;
 
+    // --- NUEVO: Validar horario de comidas ---
+    let fecha = new Date();
+    let horaActual = fecha.getHours();
+    let minActual = fecha.getMinutes();
+    let tiempoNum = horaActual + (minActual / 60);
+
+    if (comida === 'Desayuno' && (tiempoNum < 6 || tiempoNum > 10.5)) {
+        mostrarToast('El Desayuno solo se sirve de 6:00 AM a 10:30 AM', 'error'); return;
+    }
+    if (comida === 'Almuerzo' && (tiempoNum < 12 || tiempoNum > 15.5)) {
+        mostrarToast('El Almuerzo solo se sirve de 12:00 PM a 3:30 PM', 'error'); return;
+    }
+    if (comida === 'Cena' && (tiempoNum < 18 || tiempoNum > 21.5)) {
+        mostrarToast('La Cena solo se sirve de 6:00 PM a 9:30 PM', 'error'); return;
+    }
+
     let ingrediente = baseDatos.inventario.find(i => i.id === ingredienteId);
     if (!ingrediente || ingrediente.stock <= 0) {
         mostrarToast(`Stock agotado. Revisa el inventario.`, 'error'); return;
@@ -176,17 +192,17 @@ function registrarComanda() {
 
     if (tipoCliente === 'huesped') {
         const idHuesped = parseInt(document.getElementById('comanda-huesped').value);
-        if (!idHuesped) { mostrarToast('Selecciona un huÃ©sped', 'error'); return; }
+        if (!idHuesped) { mostrarToast('Selecciona un huésped', 'error'); return; }
 
         let huesped = baseDatos.huespedes.find(h => h.id === idHuesped);
         
         if (huesped.comidasHoy >= huesped.plan) {
-            mostrarToast(`El huÃ©sped ya consumiÃ³ su plan de ${huesped.plan} comidas. Debe pagar como Externo.`, 'error');
+            mostrarToast(`El huésped ya consumió su plan de ${huesped.plan} comidas. Debe pagar como Externo.`, 'error');
             return;
         }
         huesped.comidasHoy++;
         clienteNombre = huesped.nombre;
-        tipoRegistro = 'CortesÃ­a (Plan)';
+        tipoRegistro = 'Cortesía (Plan)';
     } else {
         clienteNombre = document.getElementById('comanda-externo').value;
         if (!clienteNombre) { mostrarToast('Ingresa el nombre del externo', 'error'); return; }
@@ -196,10 +212,15 @@ function registrarComanda() {
     }
 
     ingrediente.stock--;
-    let fecha = new Date();
-    let hora = fecha.getHours() + ':' + (fecha.getMinutes() < 10 ? '0' : '') + fecha.getMinutes();
+    
+    // --- NUEVO: Procesar observaciones ---
+    let notas = document.getElementById('comanda-notas').value.trim();
+    let platoFinal = notas ? `${ingrediente.nombre} <br><small style="color:var(--gold);">Nota: ${notas}</small>` : ingrediente.nombre;
+    document.getElementById('comanda-notas').value = ''; // Limpiar
 
-    baseDatos.comandas.push({ hora: hora, cliente: clienteNombre, mesero: meseroAsignado, comida: comida, plato: ingrediente.nombre, tipo: tipoRegistro, valor: valorCobrado });
+    let horaStr = horaActual + ':' + (minActual < 10 ? '0' : '') + minActual;
+
+    baseDatos.comandas.push({ hora: horaStr, cliente: clienteNombre, mesero: meseroAsignado, comida: comida, plato: platoFinal, tipo: tipoRegistro, valor: valorCobrado });
     guardarDatos();
     mostrarToast('Comanda registrada correctamente');
     actualizarVistas();
