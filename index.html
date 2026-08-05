@@ -181,7 +181,7 @@
             </div>
             <div id="nav-reservas" class="nav-item" onclick="cambiarSeccion('reservas')">
                 <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                <span>Agendar Reservas</span>
+                <span>Calendario</span>
             </div>
             <div id="nav-comandas" class="nav-item" onclick="cambiarSeccion('comandas')">
                 <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
@@ -339,61 +339,22 @@
              VISTA 2.5: RESERVAS (NUEVA)
              ========================================== -->
         <section id="seccion-reservas" class="view-section">
-            <h2 style="margin-top: 0;">Gestión de Reservas</h2>
+            <h2 style="margin-top: 0;">Calendario de Reservas</h2>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start;">
-                <!-- Formulario de Reserva -->
-                <div class="card">
-                    <h3 style="margin-top: 0; color: var(--gold);">Nueva Reserva</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="form-group">
-                            <label>Nombre Completo</label>
-                            <input type="text" id="reserva-nombre" placeholder="Ej. Juan Pérez">
-                        </div>
-                        <div class="form-group">
-                            <label>Documento de Identidad</label>
-                            <input type="text" id="reserva-documento" placeholder="Ej. 10203040">
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha de Check-in</label>
-                            <input type="date" id="reserva-ingreso">
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha de Check-out</label>
-                            <input type="date" id="reserva-salida">
-                        </div>
-                        <div class="form-group">
-                            <label>Habitación Deseada</label>
-                            <input type="text" id="reserva-habitacion" placeholder="Ej. 101">
-                        </div>
-                        <div class="form-group">
-                            <label>Plan de Hospedaje</label>
-                            <select id="reserva-plan">
-                                <option value="3">Plan Americano (3 Comidas)</option>
-                                <option value="2">Plan Modificado (2 Comidas)</option>
-                                <option value="1">Plan Continental (1 Comida)</option>
-                                <option value="0">Solo Habitación (0 Comidas)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="btn" style="margin-top: 20px; width: 100%;" onclick="registrarReserva()">Agendar Reserva</button>
+            <!-- Calendario de Reservas -->
+            <div class="card" style="min-height: 400px; display: flex; flex-direction: column;">
+                <h3 style="margin-top: 0; color: var(--gold); display: flex; justify-content: space-between; align-items: center;">
+                    <span>Calendario</span>
+                    <span id="calendario-mes-actual" style="font-size: 1rem; color: var(--text);">Mes Año</span>
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 10px; color: var(--text-secondary);">
+                    <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
                 </div>
-
-                <!-- Calendario de Reservas -->
-                <div class="card" style="min-height: 400px; display: flex; flex-direction: column;">
-                    <h3 style="margin-top: 0; color: var(--gold); display: flex; justify-content: space-between; align-items: center;">
-                        <span>Calendario de Reservas</span>
-                        <span id="calendario-mes-actual" style="font-size: 1rem; color: var(--text);">Mes Año</span>
-                    </h3>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 10px; color: var(--text-secondary);">
-                        <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
-                    </div>
-                    
-                    <!-- Cuadrícula del Calendario generada por JS -->
-                    <div id="calendario-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; flex-grow: 1;">
-                        <!-- JS inserta los días aquí -->
-                    </div>
+                
+                <!-- Cuadrícula del Calendario generada por JS -->
+                <div id="calendario-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; flex-grow: 1;">
+                    <!-- JS inserta los días aquí -->
                 </div>
             </div>
 
