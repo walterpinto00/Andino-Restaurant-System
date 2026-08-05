@@ -1,4 +1,4 @@
-﻿// Versiu00f3n: 1.3.0 | Sistema Hotel Andino S.A.S. | Hackathon SENA 2026
+// Versiu00f3n: 1.3.0 | Sistema Hotel Andino S.A.S. | Hackathon SENA 2026
 /**
  * ==========================================================================
  * HOTEL ANDINO S.A.S. - LÃ“GICA PRINCIPAL DEL SISTEMA (app.js)
@@ -7,6 +7,43 @@
  * reglas del Hackathon, pero dividido por bloques para fÃ¡cil explicaciÃ³n.
  * ==========================================================================
  */
+
+/* ==========================================================================
+   0. CAPTCHA - VERIFICACION DE SEGURIDAD
+   ========================================================================== */
+let captchaRespuesta = 0;
+
+/**
+ * Genera una operacion matematica aleatoria como CAPTCHA
+ */
+function generarCaptcha() {
+    const operaciones = ['+', '-', 'x'];
+    const op = operaciones[Math.floor(Math.random() * operaciones.length)];
+    let a, b, resultado;
+
+    switch(op) {
+        case '+':
+            a = Math.floor(Math.random() * 15) + 1;
+            b = Math.floor(Math.random() * 15) + 1;
+            resultado = a + b;
+            break;
+        case '-':
+            a = Math.floor(Math.random() * 15) + 5;
+            b = Math.floor(Math.random() * a) + 1;
+            resultado = a - b;
+            break;
+        case 'x':
+            a = Math.floor(Math.random() * 9) + 1;
+            b = Math.floor(Math.random() * 9) + 1;
+            resultado = a * b;
+            break;
+    }
+
+    captchaRespuesta = resultado;
+    document.getElementById('captcha-display').textContent = `${a} ${op} ${b}`;
+    document.getElementById('captcha-respuesta').value = '';
+    document.getElementById('captcha-error').style.display = 'none';
+}
 
 /* ==========================================================================
    1. BASE DE DATOS Y ESTADO GLOBAL
@@ -44,6 +81,7 @@ function cargarDatos() {
    ========================================================================== */
 window.onload = function() {
     cargarDatos();
+    generarCaptcha(); // Generar CAPTCHA al cargar la pagina
     
     // Verificar si ya iniciÃ³ sesiÃ³n en esta pestaÃ±a
     if (sessionStorage.getItem('hotelAndino_logged') === 'true') {
@@ -65,7 +103,7 @@ function togglePassword() {
         btn.textContent = 'ðŸ™ˆ';
     } else {
         input.type = 'password';
-        btn.textContent = 'ðŸ‘ï¸';
+        btn.textContent = 'ðŸ‘ ï¸ ';
     }
 }
 
@@ -75,25 +113,41 @@ function togglePassword() {
 function validarLogin() {
     const usuario = document.getElementById('login-usuario').value.trim();
     const password = document.getElementById('login-password').value;
+    const captchaInput = parseInt(document.getElementById('captcha-respuesta').value);
     const errorDiv = document.getElementById('login-error');
+    const captchaError = document.getElementById('captcha-error');
     const card = document.querySelector('.login-card');
 
     // Credenciales del sistema
     const USUARIO_VALIDO = 'admin';
     const PASSWORD_VALIDA = 'andino2024';
 
+    // Paso 1: Campos vacios
     if (!usuario || !password) {
-        errorDiv.textContent = 'âš ï¸ Por favor completa todos los campos';
+        errorDiv.textContent = '⚠️ Por favor completa todos los campos';
         errorDiv.style.display = 'block';
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
         return;
     }
 
+    // Paso 2: Verificar CAPTCHA
+    if (isNaN(captchaInput) || captchaInput !== captchaRespuesta) {
+        captchaError.style.display = 'block';
+        document.getElementById('captcha-respuesta').value = '';
+        document.getElementById('captcha-respuesta').focus();
+        generarCaptcha(); // Generar nuevo CAPTCHA
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 400);
+        return;
+    }
+
+    // Paso 3: Verificar credenciales
     if (usuario === USUARIO_VALIDO && password === PASSWORD_VALIDA) {
         // Login exitoso
         sessionStorage.setItem('hotelAndino_logged', 'true');
         errorDiv.style.display = 'none';
+        captchaError.style.display = 'none';
 
         const overlay = document.getElementById('login-overlay');
         overlay.style.opacity = '0';
@@ -102,16 +156,17 @@ function validarLogin() {
             document.getElementById('app-sidebar').style.display = 'flex';
             document.getElementById('app-main').style.display = 'flex';
             actualizarVistas();
-            mostrarToast('ðŸ‘‹ Bienvenido, ' + usuario + '!');
+            mostrarToast('👋 Bienvenido, ' + usuario + '!');
         }, 400);
     } else {
         // Credenciales incorrectas
-        errorDiv.textContent = 'âŒ Usuario o contraseÃ±a incorrectos. Intenta de nuevo.';
+        errorDiv.textContent = '❌ Usuario o contraseña incorrectos. Intenta de nuevo.';
         errorDiv.style.display = 'block';
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
         document.getElementById('login-password').value = '';
         document.getElementById('login-password').focus();
+        generarCaptcha(); // Nuevo CAPTCHA en cada intento fallido
     }
 }
 
