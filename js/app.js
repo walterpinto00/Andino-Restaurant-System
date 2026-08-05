@@ -43,9 +43,8 @@ function cargarDatos() {
    ========================================================================== */
 window.onload = function() {
     cargarDatos();
-    generarCaptcha(); // Generar CAPTCHA al cargar la pagina
     
-    // Verificar si ya iniciÃ³ sesiÃ³n en esta pestaÃ±a
+    // Verificar si ya inició sesión en esta pestaña
     if (sessionStorage.getItem('hotelAndino_logged') === 'true') {
         document.getElementById('login-overlay').style.display = 'none';
         document.getElementById('app-sidebar').style.display = 'flex';
@@ -53,108 +52,6 @@ window.onload = function() {
         actualizarVistas();
     }
 };
-
-/**
- * Muestra/Oculta la contraseÃ±a en el login
- */
-function togglePassword() {
-    const input = document.getElementById('login-password');
-    const btn = document.getElementById('btn-toggle-pw');
-    if (input.type === 'password') {
-        input.type = 'text';
-        btn.textContent = 'ðŸ™ˆ';
-    } else {
-        input.type = 'password';
-        btn.textContent = 'ðŸ‘ ï¸ ';
-    }
-}
-
-/**
- * Valida el usuario y contraseÃ±a del login
- */
-function validarLogin() {
-    const errorDiv = document.getElementById('login-error');
-    const captchaError = document.getElementById('captcha-error');
-    const card = document.querySelector('.login-card');
-
-    // --- VALIDACION 1: Sistema de bloqueo por intentos fallidos ---
-    if (bloqueadoHasta && new Date() < bloqueadoHasta) {
-        const segundos = Math.ceil((bloqueadoHasta - new Date()) / 1000);
-        errorDiv.textContent = `🔒 Sistema bloqueado. Espera ${segundos} segundos.`;
-        errorDiv.style.display = 'block';
-        return;
-    }
-
-    // --- VALIDACION 2: Sanitizar inputs antes de procesar ---
-    const usuario = sanitizar(document.getElementById('login-usuario').value);
-    const password = document.getElementById('login-password').value;
-    const USUARIO_VALIDO = 'admin';
-    const PASSWORD_VALIDA = 'andino2024';
-
-    // --- VALIDACION 3: Campos vacios ---
-    if (campoVacio(usuario) || campoVacio(password)) {
-        errorDiv.textContent = '⚠️ Por favor completa usuario y contraseña';
-        errorDiv.style.display = 'block';
-        card.classList.add('shake');
-        setTimeout(() => card.classList.remove('shake'), 400);
-        return;
-    }
-
-    // --- VALIDACION 4: Longitud minima de contrasena ---
-    if (password.length < 6) {
-        errorDiv.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres';
-        errorDiv.style.display = 'block';
-        card.classList.add('shake');
-        setTimeout(() => card.classList.remove('shake'), 400);
-        return;
-    }
-
-    // --- VALIDACION 5: Google reCAPTCHA ---
-    const recaptchaRespuesta = grecaptcha.getResponse();
-    if (!recaptchaRespuesta) {
-        captchaError.style.display = 'block';
-        card.classList.add('shake');
-        setTimeout(() => card.classList.remove('shake'), 400);
-        return;
-    }
-    captchaError.style.display = 'none';
-
-    // --- VALIDACION 6: Credenciales correctas ---
-    if (usuario === USUARIO_VALIDO && password === PASSWORD_VALIDA) {
-        intentosFallidos = 0; // Resetear contador
-        sessionStorage.setItem('hotelAndino_logged', 'true');
-        errorDiv.style.display = 'none';
-        reiniciarTimerSesion(); // Iniciar timer de sesion
-
-        const overlay = document.getElementById('login-overlay');
-        overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.style.display = 'none';
-            document.getElementById('app-sidebar').style.display = 'flex';
-            document.getElementById('app-main').style.display = 'flex';
-            actualizarVistas();
-            mostrarToast('👋 Bienvenido, ' + usuario + '!');
-        }, 400);
-    } else {
-        // --- VALIDACION 7: Bloquear despues de 3 intentos fallidos ---
-        intentosFallidos++;
-        const restantes = MAX_INTENTOS - intentosFallidos;
-
-        if (intentosFallidos >= MAX_INTENTOS) {
-            bloqueadoHasta = new Date(new Date().getTime() + 30000); // Bloquear 30 segundos
-            intentosFallidos = 0;
-            errorDiv.textContent = '🔒 Demasiados intentos. Sistema bloqueado por 30 segundos.';
-        } else {
-            errorDiv.textContent = `❌ Usuario o contraseña incorrectos. Te quedan ${restantes} intento(s).`;
-        }
-
-        errorDiv.style.display = 'block';
-        card.classList.add('shake');
-        setTimeout(() => card.classList.remove('shake'), 400);
-        document.getElementById('login-password').value = '';
-        grecaptcha.reset();
-    }
-}
 
 function cambiarSeccion(seccionId) {
     // Ocultar todo
