@@ -9,41 +9,57 @@
  */
 
 /* ==========================================================================
-   0. CAPTCHA - VERIFICACION DE SEGURIDAD
+   0. SEGURIDAD Y VALIDACIONES DEL SISTEMA
    ========================================================================== */
-let captchaRespuesta = 0;
 
-/**
- * Genera una operacion matematica aleatoria como CAPTCHA
- */
-function generarCaptcha() {
-    const operaciones = ['+', '-', 'x'];
-    const op = operaciones[Math.floor(Math.random() * operaciones.length)];
-    let a, b, resultado;
+// --- VALIDACION 1: Control de intentos de login ---
+let intentosFallidos = 0;
+const MAX_INTENTOS = 3;
+let bloqueadoHasta = null;
 
-    switch(op) {
-        case '+':
-            a = Math.floor(Math.random() * 15) + 1;
-            b = Math.floor(Math.random() * 15) + 1;
-            resultado = a + b;
-            break;
-        case '-':
-            a = Math.floor(Math.random() * 15) + 5;
-            b = Math.floor(Math.random() * a) + 1;
-            resultado = a - b;
-            break;
-        case 'x':
-            a = Math.floor(Math.random() * 9) + 1;
-            b = Math.floor(Math.random() * 9) + 1;
-            resultado = a * b;
-            break;
-    }
+// --- VALIDACION 2: Timeout de sesión (20 minutos inactivo cierra sesion) ---
+let timerSesion = null;
+const TIEMPO_SESION = 20 * 60 * 1000; // 20 minutos
 
-    captchaRespuesta = resultado;
-    document.getElementById('captcha-display').textContent = `${a} ${op} ${b}`;
-    document.getElementById('captcha-respuesta').value = '';
-    document.getElementById('captcha-error').style.display = 'none';
+function reiniciarTimerSesion() {
+    clearTimeout(timerSesion);
+    timerSesion = setTimeout(() => {
+        if (sessionStorage.getItem('hotelAndino_logged') === 'true') {
+            sessionStorage.removeItem('hotelAndino_logged');
+            location.reload();
+            mostrarToast('Sesión cerrada por inactividad', 'error');
+        }
+    }, TIEMPO_SESION);
 }
+// Reiniciar el timer en cada clic o tecla del usuario
+document.addEventListener('click', reiniciarTimerSesion);
+document.addEventListener('keypress', reiniciarTimerSesion);
+
+// --- VALIDACION 3: Sanitizar inputs (quitar caracteres peligrosos) ---
+function sanitizar(texto) {
+    return texto.replace(/[<>"'%;()&+]/g, '').trim();
+}
+
+// --- VALIDACION 4: Validar que solo sean letras (para nombres) ---
+function soloLetras(texto) {
+    return /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(texto.trim());
+}
+
+// --- VALIDACION 5: Validar que solo sean números (para documentos) ---
+function soloNumeros(texto) {
+    return /^\d+$/.test(texto.trim());
+}
+
+// --- VALIDACION 6: Verificar si un huésped ya está registrado ---
+function documentoExiste(doc) {
+    return baseDatos.huespedes.some(h => h.documento === doc.trim());
+}
+
+// --- VALIDACION 7: Verificar que el campo no esté vacío ---
+function campoVacio(valor) {
+    return !valor || valor.trim() === '';
+}
+
 
 /* ==========================================================================
    1. BASE DE DATOS Y ESTADO GLOBAL
@@ -111,27 +127,43 @@ function togglePassword() {
  * Valida el usuario y contraseÃ±a del login
  */
 function validarLogin() {
-    const usuario = document.getElementById('login-usuario').value.trim();
-    const password = document.getElementById('login-password').value;
-    const captchaInput = parseInt(document.getElementById('captcha-respuesta').value);
     const errorDiv = document.getElementById('login-error');
     const captchaError = document.getElementById('captcha-error');
     const card = document.querySelector('.login-card');
 
-    // Credenciales del sistema
+    // --- VALIDACION 1: Sistema de bloqueo por intentos fallidos ---
+    if (bloqueadoHasta && new Date() < bloqueadoHasta) {
+        const segundos = Math.ceil((bloqueadoHasta - new Date()) / 1000);
+        errorDiv.textContent = `🔒 Sistema bloqueado. Espera ${segundos} segundos.`;
+        errorDiv.style.display = 'block';
+        return;
+    }
+
+    // --- VALIDACION 2: Sanitizar inputs antes de procesar ---
+    const usuario = sanitizar(document.getElementById('login-usuario').value);
+    const password = document.getElementById('login-password').value;
     const USUARIO_VALIDO = 'admin';
     const PASSWORD_VALIDA = 'andino2024';
 
-    // Paso 1: Campos vacios
-    if (!usuario || !password) {
-        errorDiv.textContent = '⚠️ Por favor completa todos los campos';
+    // --- VALIDACION 3: Campos vacios ---
+    if (campoVacio(usuario) || campoVacio(password)) {
+        errorDiv.textContent = '⚠️ Por favor completa usuario y contraseña';
         errorDiv.style.display = 'block';
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
         return;
     }
 
-    // Paso 2: Verificar Google reCAPTCHA
+    // --- VALIDACION 4: Longitud minima de contrasena ---
+    if (password.length < 6) {
+        errorDiv.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres';
+        errorDiv.style.display = 'block';
+        card.classList.add('shake');
+        setTimeout(() => card.classList.remove('shake'), 400);
+        return;
+    }
+
+    // --- VALIDACION 5: Google reCAPTCHA ---
     const recaptchaRespuesta = grecaptcha.getResponse();
     if (!recaptchaRespuesta) {
         captchaError.style.display = 'block';
@@ -141,12 +173,12 @@ function validarLogin() {
     }
     captchaError.style.display = 'none';
 
-    // Paso 3: Verificar credenciales
+    // --- VALIDACION 6: Credenciales correctas ---
     if (usuario === USUARIO_VALIDO && password === PASSWORD_VALIDA) {
-        // Login exitoso
+        intentosFallidos = 0; // Resetear contador
         sessionStorage.setItem('hotelAndino_logged', 'true');
         errorDiv.style.display = 'none';
-        captchaError.style.display = 'none';
+        reiniciarTimerSesion(); // Iniciar timer de sesion
 
         const overlay = document.getElementById('login-overlay');
         overlay.style.opacity = '0';
@@ -158,14 +190,23 @@ function validarLogin() {
             mostrarToast('👋 Bienvenido, ' + usuario + '!');
         }, 400);
     } else {
-        // Credenciales incorrectas
-        errorDiv.textContent = '❌ Usuario o contraseña incorrectos. Intenta de nuevo.';
+        // --- VALIDACION 7: Bloquear despues de 3 intentos fallidos ---
+        intentosFallidos++;
+        const restantes = MAX_INTENTOS - intentosFallidos;
+
+        if (intentosFallidos >= MAX_INTENTOS) {
+            bloqueadoHasta = new Date(new Date().getTime() + 30000); // Bloquear 30 segundos
+            intentosFallidos = 0;
+            errorDiv.textContent = '🔒 Demasiados intentos. Sistema bloqueado por 30 segundos.';
+        } else {
+            errorDiv.textContent = `❌ Usuario o contraseña incorrectos. Te quedan ${restantes} intento(s).`;
+        }
+
         errorDiv.style.display = 'block';
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 400);
         document.getElementById('login-password').value = '';
-        document.getElementById('login-password').focus();
-        grecaptcha.reset(); // Resetear el reCAPTCHA de Google en cada intento fallido
+        grecaptcha.reset();
     }
 }
 
@@ -216,22 +257,38 @@ function actualizarDashboard() {
    3. MÃ“DULO HUÃ‰SPEDES
    ========================================================================== */
 function registrarHuesped() {
-    let nombre = document.getElementById('huesped-nombre').value;
-    let doc = document.getElementById('huesped-doc').value;
-    let hab = document.getElementById('huesped-hab').value;
+    let nombre = sanitizar(document.getElementById('huesped-nombre').value);
+    let doc = sanitizar(document.getElementById('huesped-doc').value);
+    let hab = sanitizar(document.getElementById('huesped-hab').value);
     let plan = parseInt(document.getElementById('huesped-plan').value);
 
-    if (!nombre || !doc || !hab) {
-        mostrarToast('Por favor completa todos los campos', 'error');
-        return;
+    // V1: Campos vacíos
+    if (campoVacio(nombre) || campoVacio(doc) || campoVacio(hab)) {
+        mostrarToast('⚠️ Todos los campos son obligatorios', 'error'); return;
+    }
+    // V2: Nombre solo letras
+    if (!soloLetras(nombre)) {
+        mostrarToast('⚠️ El nombre solo puede contener letras', 'error'); return;
+    }
+    // V3: Nombre mínimo 3 caracteres
+    if (nombre.trim().length < 3) {
+        mostrarToast('⚠️ El nombre debe tener al menos 3 caracteres', 'error'); return;
+    }
+    // V4: Documento solo números
+    if (!soloNumeros(doc)) {
+        mostrarToast('⚠️ El documento solo puede contener números', 'error'); return;
+    }
+    // V5: Documento duplicado
+    if (documentoExiste(doc)) {
+        mostrarToast('⚠️ Ya existe un huésped con ese documento registrado', 'error'); return;
     }
 
+    nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1); // Capitalizar
     baseDatos.huespedes.push({
-        id: Date.now(), nombre: nombre, documento: doc, habitacion: hab, plan: plan, comidasHoy: 0
+        id: Date.now(), nombre, documento: doc, habitacion: hab, plan, comidasHoy: 0
     });
     guardarDatos();
-    mostrarToast('HuÃ©sped registrado exitosamente');
-    
+    mostrarToast('✅ Huésped registrado exitosamente');
     document.getElementById('huesped-nombre').value = '';
     document.getElementById('huesped-doc').value = '';
     document.getElementById('huesped-hab').value = '';
