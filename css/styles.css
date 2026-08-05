@@ -371,10 +371,22 @@ body {
   text-shadow: 0 0 10px rgba(212,168,83,0.3);
 }
 
-.nav-item i {
-  font-size: 1.2rem;
-  width: 24px;
-  text-align: center;
+.nav-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.nav-item:hover .nav-icon {
+  color: var(--gold);
+  transform: scale(1.1);
+}
+
+.nav-item.active .nav-icon {
+  color: var(--gold);
+  filter: drop-shadow(0 0 5px rgba(212,168,83,0.5));
 }
 
 /* 5. Contenedor de las vistas principales */
