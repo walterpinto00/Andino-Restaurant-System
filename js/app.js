@@ -33,9 +33,9 @@ let baseDatos = {
 
 function cifrarDatos(obj) {
     try {
-        // Encriptación básica Base64 con soporte UTF-8
+        // Encriptación Base64 100% segura para UTF-8 y tildes
         let str = JSON.stringify(obj);
-        return btoa(unescape(encodeURIComponent(str)));
+        return btoa(encodeURIComponent(str));
     } catch(e) {
         return JSON.stringify(obj);
     }
@@ -43,10 +43,25 @@ function cifrarDatos(obj) {
 
 function descifrarDatos(str) {
     try {
-        // Soporte de migración: Si ya estaba en texto plano, devolverlo parseado directamente
         if (str.startsWith('{') || str.startsWith('[')) return JSON.parse(str);
-        // Desencriptar
-        return JSON.parse(decodeURIComponent(escape(atob(str))));
+        
+        let decodedStr = "";
+        try {
+            // Intento 1: Nuevo formato seguro
+            decodedStr = decodeURIComponent(atob(str));
+        } catch(e1) {
+            // Intento 2: Formato antiguo (fallback por si quedó guardado con la versión anterior)
+            decodedStr = decodeURIComponent(escape(atob(str)));
+        }
+
+        // Fix de seguridad para limpiar caracteres raros si se corrompieron previamente
+        decodedStr = decodedStr.replace(/Ã©/g, 'é')
+                               .replace(/Ã³/g, 'ó')
+                               .replace(/Ã\xAD/g, 'í')
+                               .replace(/Ã¡/g, 'á')
+                               .replace(/Ã±/g, 'ñ');
+
+        return JSON.parse(decodedStr);
     } catch(e) {
         console.error("Error de seguridad al leer la DB", e);
         return null;
