@@ -111,6 +111,19 @@ function cargarDatos() {
             baseDatos.historialHuespedes = [];
             guardarDatos();
         }
+
+        // Migración: asegurar que los huéspedes tengan fechas para el calendario
+        let necesitaGuardarFechas = false;
+        let hoyFormat = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        let mananaFormat = new Date(Date.now() + 86400000 - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        baseDatos.huespedes.forEach(h => {
+            if (!h.ingreso || !h.salida) {
+                h.ingreso = hoyFormat;
+                h.salida = mananaFormat;
+                necesitaGuardarFechas = true;
+            }
+        });
+        if (necesitaGuardarFechas) guardarDatos();
     } else {
         guardarDatos();
     }
@@ -458,18 +471,21 @@ function renderizarCalendarioReservas() {
         
         let diaStr = `${anioActualReservas}-${(mesActualReservas+1).toString().padStart(2, '0')}-${dia.toString().padStart(2, '0')}`;
         
-        // Contar reservas que cruzan este día
-        let reservasDelDia = baseDatos.reservas.filter(r => diaStr >= r.ingreso && diaStr < r.salida);
+        // Contar reservas (pendientes) y huéspedes (hechas) que cruzan este día
+        let reservasPendientes = baseDatos.reservas.filter(r => diaStr >= r.ingreso && diaStr < r.salida).map(r => ({...r, tipo: 'pendiente'}));
+        let reservasHechas = baseDatos.huespedes.filter(h => diaStr >= h.ingreso && diaStr < h.salida).map(h => ({...h, tipo: 'hecha'}));
+        
+        let todasLasOcupaciones = [...reservasPendientes, ...reservasHechas];
         
         div.innerHTML = `<div style="color: var(--gold); font-weight: bold; margin-bottom: 5px;">${dia}</div>`;
         
-        if (reservasDelDia.length > 0) {
-            div.innerHTML += `<div style="background: var(--gold); color: black; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;">${reservasDelDia.length}</div>`;
+        if (todasLasOcupaciones.length > 0) {
+            div.innerHTML += `<div style="background: var(--gold); color: black; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;">${todasLasOcupaciones.length}</div>`;
         }
 
         div.onmouseover = () => div.style.background = 'rgba(212, 168, 83, 0.1)';
         div.onmouseout = () => div.style.background = 'rgba(255,255,255,0.03)';
-        div.onclick = () => verDetalleReserva(diaStr, reservasDelDia);
+        div.onclick = () => verDetalleReserva(diaStr, todasLasOcupaciones);
 
         grid.appendChild(div);
     }
@@ -477,26 +493,33 @@ function renderizarCalendarioReservas() {
 
 function verDetalleReserva(fecha, reservas) {
     document.getElementById('modal-reservas-dia').style.display = 'flex';
-    document.getElementById('modal-reservas-titulo').textContent = `Reservas para el ${fecha}`;
+    document.getElementById('modal-reservas-titulo').textContent = `Ocupación para el ${fecha}`;
     let lista = document.getElementById('modal-reservas-lista');
     lista.innerHTML = '';
 
     if (reservas.length === 0) {
-        lista.innerHTML = '<p style="color:var(--text-secondary); text-align:center;">No hay reservas para este día.</p>';
+        lista.innerHTML = '<p style="color:var(--text-secondary); text-align:center;">No hay ocupación para este día.</p>';
         return;
     }
 
     reservas.forEach(r => {
+        let esHecha = r.tipo === 'hecha';
+        let badge = esHecha ? '<span class="badge" style="background:var(--success); color:black; font-size:0.7rem;">Check-in (Huésped)</span>' : '<span class="badge" style="background:var(--gold); color:black; font-size:0.7rem;">Reserva Pendiente</span>';
+        
+        let botones = esHecha ? 
+            `<button class="btn-sm" onclick="document.getElementById('modal-reservas-dia').style.display='none'; cambiarSeccion('huespedes');" style="background: var(--gold); color: black;">Ver Huésped</button>` :
+            `<button class="btn-sm" onclick="hacerCheckinReserva('${r.id}')" style="background: var(--success); color: black;">Hacer Check-in</button>
+             <button class="btn-sm" onclick="cancelarReserva('${r.id}')" style="background: var(--danger); border-color: var(--danger); color: white;">Cancelar</button>`;
+
         lista.innerHTML += `
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h4 style="margin: 0 0 5px 0; color: var(--gold);">${r.nombre}</h4>
+                    <h4 style="margin: 0 0 5px 0; color: var(--gold);">${r.nombre} ${badge}</h4>
                     <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Hab: ${r.habitacion} | Doc: ${r.documento}</p>
                     <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Del ${r.ingreso} al ${r.salida}</p>
                 </div>
                 <div style="display: flex; gap: 5px; flex-direction: column;">
-                    <button class="btn-sm" onclick="hacerCheckinReserva('${r.id}')" style="background: var(--success); color: black;">Check-in</button>
-                    <button class="btn-sm" onclick="cancelarReserva('${r.id}')" style="background: var(--danger); border-color: var(--danger); color: white;">Cancelar</button>
+                    ${botones}
                 </div>
             </div>
         `;
