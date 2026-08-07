@@ -345,7 +345,11 @@
             <div class="card" style="min-height: 400px; display: flex; flex-direction: column;">
                 <h3 style="margin-top: 0; color: var(--gold); display: flex; justify-content: space-between; align-items: center;">
                     <span>Calendario</span>
-                    <span id="calendario-mes-actual" style="font-size: 1rem; color: var(--text);">Mes Año</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="btn-sm" style="background: rgba(255,255,255,0.1); border: none; cursor: pointer;" onclick="cambiarMesReservas(-1)">◄</button>
+                        <span id="calendario-mes-actual" style="font-size: 1rem; color: var(--text); min-width: 100px; text-align: center;">Mes Año</span>
+                        <button class="btn-sm" style="background: rgba(255,255,255,0.1); border: none; cursor: pointer;" onclick="cambiarMesReservas(1)">►</button>
+                    </div>
                 </h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; margin-bottom: 10px; color: var(--text-secondary);">
