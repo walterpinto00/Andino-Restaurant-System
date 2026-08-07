@@ -159,7 +159,10 @@ function mostrarToast(mensaje, tipo = 'success') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = `toast ${tipo}`;
-    toast.innerHTML = `<span>${tipo === 'success' ? 'âœ…' : 'âŒ'}</span><span>${mensaje}</span>`;
+    let icono = '✅';
+    if (tipo === 'error') icono = '❌';
+    else if (tipo === 'gold') icono = '⚠️';
+    toast.innerHTML = `<span>${icono}</span><span>${mensaje}</span>`;
     container.appendChild(toast);
     setTimeout(() => {
         toast.style.opacity = '0';
@@ -219,7 +222,7 @@ function actualizarDashboard() {
 }
 
 /* ==========================================================================
-   3. MÃ“DULO HUÃ‰SPEDES
+   3. MÓDULO HUÉSPEDES
    ========================================================================== */
 function registrarHuesped() {
     let nombre = sanitizar(document.getElementById('huesped-nombre').value);
@@ -793,8 +796,44 @@ function confirmarStock(index) {
     actualizarVistas();
 }
 
+function abrirModalProducto() {
+    document.getElementById('modal-nuevo-producto').style.display = 'flex';
+}
+
+function cerrarModalProducto() {
+    document.getElementById('modal-nuevo-producto').style.display = 'none';
+    document.getElementById('nuevo-prod-nombre').value = '';
+    document.getElementById('nuevo-prod-stock').value = '';
+    document.getElementById('nuevo-prod-unidad').value = '';
+    document.getElementById('nuevo-prod-costo').value = '';
+}
+
+function guardarProducto() {
+    let nombre = sanitizar(document.getElementById('nuevo-prod-nombre').value);
+    let stock = parseInt(document.getElementById('nuevo-prod-stock').value);
+    let unidad = sanitizar(document.getElementById('nuevo-prod-unidad').value);
+    let costo = parseInt(document.getElementById('nuevo-prod-costo').value);
+
+    if (campoVacio(nombre) || isNaN(stock) || campoVacio(unidad) || isNaN(costo)) {
+        mostrarToast('⚠️ Completa todos los campos obligatorios', 'error'); return;
+    }
+
+    nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+    
+    // Verificar si ya existe
+    if (baseDatos.inventario.some(p => p.nombre.toLowerCase() === nombre.toLowerCase())) {
+        mostrarToast('⚠️ Ya existe un producto con ese nombre', 'error'); return;
+    }
+
+    baseDatos.inventario.push({ nombre, stock, unidad, costo });
+    guardarDatos();
+    mostrarToast('✅ Producto añadido correctamente');
+    cerrarModalProducto();
+    actualizarVistas();
+}
+
 /* ==========================================================================
-   6. MÃ“DULO CAJA DIARIA
+   6. MÓDULO CAJA DIARIA
    ========================================================================== */
 function renderizarCaja() {
     const tbody = document.getElementById('tabla-caja');
