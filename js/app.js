@@ -1,9 +1,25 @@
 /**
  * ==========================================================================
  * HOTEL ANDINO S.A.S. - APP.JS
- * 
- * Logica principal del sistema: vistas, modulos y navegacion.
- * Depende de: validaciones.js y seguridad.js
+ *
+ * @author walterpinto00
+ * @version 2.0.0
+ * @description
+ * Módulo principal del sistema de gestión hotelera y restaurante.
+ * Controla el estado global de la aplicación, la navegación entre vistas,
+ * y coordina todos los módulos del sistema.
+ *
+ * Módulos incluidos:
+ *  1. Base de Datos y Estado Global  - Estructura de datos en localStorage cifrado
+ *  2. Inicialización y Vistas        - Control de secciones y login
+ *  3. Módulo Huéspedes               - Registro, check-in y check-out
+ *  4. Módulo Reservas                - Calendario y gestión de reservas
+ *  5. Módulo Comandas                - Registro de pedidos y validación de plan
+ *  6. Módulo Inventario              - Control de stock y alertas STOP
+ *  7. Módulo Caja Diaria             - Flujo de caja y resumen financiero
+ *  8. Módulo Personal                - Gestión de empleados y roles (RBAC)
+ *
+ * Depende de: validaciones.js, seguridad.js
  * ==========================================================================
  */
 
